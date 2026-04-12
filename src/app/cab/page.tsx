@@ -3,8 +3,8 @@ import { BottomCTA } from "@/components/ui/BottomCTA";
 import Link from "next/link";
 
 export const metadata = {
-  title: "Premium Taxi Services Himachal | Chandigarh to Manali, Shimla, Spiti",
-  description: "Book reliable, safe, and premium taxi services across Himachal Pradesh. Specializing in long-distance mountain travel with expert local drivers.",
+  title: "Premium Cab Services Himachal | Chandigarh to Manali, Shimla, Spiti",
+  description: "Book reliable, safe, and premium cab services across Himachal Pradesh. Specializing in long-distance mountain travel with expert local drivers.",
 };
 
 const vehicles = [
@@ -14,7 +14,7 @@ const vehicles = [
     capacity: "6-7 Pasengers",
     ideal: "Family trips, Long expeditions",
     features: ["Dual AC", "Premium Seating", "Ample Luggage space", "Expert Mountain Driver"],
-    img: "/taxi-hero.png"
+    img: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=800&q=80"
   },
   {
     name: "Luxury Sedan",
@@ -41,15 +41,15 @@ const routes = [
   { from: "Delhi", to: "Manali", price: "Starts from ₹11,000", time: "12-14 Hours" },
 ];
 
-export default function TaxiPage() {
+export default function CabPage() {
   return (
     <main className="flex flex-col min-h-screen bg-white">
       {/* Hero Section */}
       <section className="relative h-[60vh] md:h-[70vh] flex items-center justify-center overflow-hidden bg-forest-900">
         <div className="absolute inset-0 z-0">
           <img 
-            src="/taxi-hero.png" 
-            alt="Premium Taxi Service Himachal" 
+            src="https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=1200&q=80" 
+            alt="Premium Cab Service Himachal" 
             className="w-full h-full object-cover opacity-40 mix-blend-overlay"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-slate-950/50 via-transparent to-white"></div>
@@ -60,7 +60,7 @@ export default function TaxiPage() {
             <Car className="w-4 h-4 text-amber-400" /> Reliable Mountain Travel
           </div>
           <h1 className="text-4xl md:text-7xl font-outfit font-extrabold text-white mb-6 drop-shadow-xl">
-            Premium <span className="text-amber-400">Taxi</span> Services
+            Premium <span className="text-amber-400">Cab</span> Services
           </h1>
           <p className="text-lg md:text-xl text-slate-200 max-w-2xl mx-auto font-medium">
             Professional mountain drivers, government-verified fleet, and transparent pricing for your Himalayan journey.
@@ -170,7 +170,7 @@ export default function TaxiPage() {
                   <Phone className="w-8 h-8 text-forest-600" />
                   <div>
                     <h4 className="font-bold text-slate-900">Direct Booking Hub</h4>
-                    <p className="text-sm text-slate-600">Call us for spot availability: <span className="font-bold">+91 98765 43210</span></p>
+                    <p className="text-sm text-slate-600">Call us for spot availability: <span className="font-bold">+91 70183 18824</span></p>
                   </div>
                 </div>
               </div>

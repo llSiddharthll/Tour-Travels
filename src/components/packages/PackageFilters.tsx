@@ -8,21 +8,21 @@ export const PackageFilters = () => {
 
   useEffect(() => {
     const handleToggle = () => setIsOpen(true);
-    window.addEventListener('open-mobile-filters', handleToggle);
-    return () => window.removeEventListener('open-mobile-filters', handleToggle);
+    window.addEventListener('open-filters', handleToggle);
+    return () => window.removeEventListener('open-filters', handleToggle);
   }, []);
 
   return (
-    <div className="w-full lg:w-1/4">
-      {/* Background Overlay (Mobile) */}
+    <>
+      {/* Background Overlay (Modal) */}
       <div 
-        className={`fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-sm transition-opacity duration-300 lg:hidden ${isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`} 
+        className={`fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm transition-opacity duration-300 ${isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`} 
         onClick={() => setIsOpen(false)}
       />
 
-      {/* Sidebar Container */}
-      <aside className={`fixed bottom-0 left-0 right-0 z-50 lg:static lg:z-auto h-[85vh] lg:h-auto w-full transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] ${isOpen ? 'translate-y-0' : 'translate-y-full lg:translate-y-0'}`}>
-        <div className="bg-white p-6 xl:p-8 rounded-t-3xl lg:rounded-3xl border border-slate-200 shadow-[0_-8px_30px_-10px_rgba(0,0,0,0.1)] lg:shadow-sm lg:shadow-slate-200/50 lg:sticky lg:top-28 h-full overflow-y-auto flex flex-col">
+      {/* Modal Container */}
+      <aside className={`fixed inset-y-0 right-0 z-50 lg:w-96 w-full max-w-sm transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+        <div className="bg-white p-6 xl:p-8 border-l border-slate-200 shadow-2xl h-full overflow-y-auto flex flex-col">
           
           <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-100 flex-shrink-0">
             <h2 className="font-outfit font-bold text-xl text-slate-900 flex items-center">
@@ -31,8 +31,8 @@ export const PackageFilters = () => {
             
             <div className="flex items-center gap-4">
               <span className="text-sm font-medium text-forest-600 hover:text-forest-700 cursor-pointer transition-colors">Clear All</span>
-              {/* Mobile Close Button */}
-              <button onClick={() => setIsOpen(false)} className="lg:hidden p-1 bg-slate-100 rounded-full text-slate-500 hover:text-slate-900">
+              {/* Close Button */}
+              <button onClick={() => setIsOpen(false)} className="p-1 bg-slate-100 rounded-full text-slate-500 hover:text-slate-900">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -86,13 +86,24 @@ export const PackageFilters = () => {
           <div className="pt-4 border-t border-slate-100 flex-shrink-0 mt-auto">
             <button 
               onClick={() => setIsOpen(false)}
-              className="w-full bg-slate-900 text-white font-bold py-3.5 rounded-xl hover:bg-amber-500 hover:text-slate-900 transition-colors shadow-md lg:shadow-none"
+              className="w-full bg-slate-900 text-white font-bold py-3.5 rounded-xl hover:bg-amber-500 hover:text-slate-900 transition-colors shadow-md"
             >
               Apply Filters
             </button>
           </div>
         </div>
       </aside>
-    </div>
+    </>
   );
 };
+
+export function ClientFilterDispatcher() {
+  return (
+    <button 
+      onClick={() => window.dispatchEvent(new Event('open-filters'))}
+      className="inline-flex items-center gap-2 px-4 py-2 border border-slate-200 bg-white rounded-lg hover:bg-slate-50 hover:border-slate-300 transition-colors shadow-sm text-sm font-bold text-slate-700 mt-2 sm:mt-0"
+    >
+      <Filter className="w-4 h-4 text-forest-600" /> Filters
+    </button>
+  );
+}

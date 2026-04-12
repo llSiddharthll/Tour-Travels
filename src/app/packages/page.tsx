@@ -1,12 +1,13 @@
 import { getAllPackages } from "@/lib/db/packages";
 import { PackageCard } from "@/components/ui/PackageCard";
-import { PackageFilters } from "@/components/packages/PackageFilters";
+import { PackageFilters, ClientFilterDispatcher } from "@/components/packages/PackageFilters";
 import { SortDropdown } from "@/components/packages/SortDropdown";
+import { BookingForm } from "@/components/packages/BookingForm";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 
 export const metadata = {
-  title: "All Tour Packages | HimachalTrek",
+  title: "All Tour Packages | Himvigo Tours",
   description: "Browse our premium selection of Himachal Pradesh itineraries, from Spiti Valley road trips to luxury Manali snow retreats.",
 };
 
@@ -86,18 +87,21 @@ export default async function PackagesPage(props: { searchParams: Promise<{ dest
         </div>
       </section>
 
-      {/* Main Content Area */}
-      <section className="max-w-7xl mx-auto px-4 md:px-8 py-10 lg:py-16 w-full flex flex-col lg:flex-row gap-6 lg:gap-12">
+      <section className="max-w-7xl mx-auto px-4 md:px-8 py-10 lg:py-16 w-full flex flex-col lg:flex-row gap-6 lg:gap-12 relative">
         
-        {/* Filter Sidebar (Desktop/Mobile Toggle) */}
+        {/* Hidden Modal Container */}
         <PackageFilters />
 
         {/* Packages Grid */}
-        <div className="w-full lg:w-3/4">
+        <div className="w-full lg:w-2/3">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-            <h2 className="text-slate-600 font-medium text-center sm:text-left text-sm sm:text-base">
-              Showing <span className="font-bold text-slate-900 text-base sm:text-lg mx-1">{packages.length}</span> curated tours
-            </h2>
+            <div className="flex items-center gap-4">
+              <h2 className="text-slate-600 font-medium text-center sm:text-left text-sm sm:text-base">
+                Showing <span className="font-bold text-slate-900 text-base sm:text-lg mx-1">{packages.length}</span> curated tours
+              </h2>
+              {/* Dispatch Component (Button) */}
+              <ClientFilterDispatcher />
+            </div>
             
             <div className="flex items-center justify-center sm:justify-end gap-2 w-full sm:w-auto">
               <span className="text-sm font-medium text-slate-500 whitespace-nowrap">Sort by:</span>
@@ -110,9 +114,12 @@ export default async function PackagesPage(props: { searchParams: Promise<{ dest
             {packages.map((pkg) => (
               <PackageCard key={pkg.id} tour={pkg} />
             ))}
-            
-            {/* If we had more packages we could add pagination here. But for mock, this is complete. */}
           </div>
+        </div>
+
+        {/* Booking Form Sidebar */}
+        <div className="w-full lg:w-1/3">
+           <BookingForm />
         </div>
       </section>
     </main>

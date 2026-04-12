@@ -31,6 +31,16 @@ export const SearchFilter = () => {
   }, []);
 
   const handleSearch = () => {
+    if (activeTab === "cab") {
+      router.push("/cab");
+      return;
+    }
+    
+    if (activeTab === "custom") {
+      router.push("/contact");
+      return;
+    }
+
     const params = new URLSearchParams();
     if (destination) params.append("dest", destination);
     if (duration) params.append("dur", duration);
@@ -65,10 +75,10 @@ export const SearchFilter = () => {
           Tour Packages
         </button>
         <button 
-          onClick={() => setActiveTab("taxi")}
-          className={`${activeTab === "taxi" ? "bg-white text-forest-900 font-extrabold" : "bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/10 border-b-0 text-white font-medium shadow-inner"} px-6 py-3 rounded-t-xl text-xs md:text-sm tracking-wide transition-all whitespace-nowrap shrink-0`}
+          onClick={() => setActiveTab("cab")}
+          className={`${activeTab === "cab" ? "bg-white text-forest-900 font-extrabold" : "bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/10 border-b-0 text-white font-medium shadow-inner"} px-6 py-3 rounded-t-xl text-xs md:text-sm tracking-wide transition-all whitespace-nowrap shrink-0`}
         >
-          Taxi Services
+          Cab Services
         </button>
         <button 
           onClick={() => setActiveTab("custom")}

@@ -3,13 +3,15 @@ import { SearchFilter } from "@/components/SearchFilter";
 import { BottomCTA } from "@/components/ui/BottomCTA";
 import RegionSlider from "@/components/home/RegionSlider";
 import TestimonialSlider from "@/components/home/TestimonialSlider";
+import ActivitiesSlider from "@/components/home/ActivitiesSlider";
+import BlogSection from "@/components/home/BlogSection";
 import { getFeaturedPackages } from "@/lib/db/packages";
-import { ShieldCheck, Map, Users, Star, ArrowRight, Quote, Compass, CalendarCheck } from "lucide-react";
+import { ShieldCheck, Map, Users, Star, ArrowRight, Quote, Compass, CalendarCheck, CheckCircle, Heart, Trophy, Clock } from "lucide-react";
 import Link from "next/link";
 
 export const metadata = {
-  title: "Best Himachal Tour Packages & Spiti Valley Tours | YourBrand",
-  description: "Experience the magic of Himachal Pradesh with our premium, offbeat Spiti Valley tours and reliable Chandigarh to Manali taxi services.",
+  title: "Best Himachal Tour Packages & Spiti Valley Tours | Himvigo Tours",
+  description: "Experience the magic of Himachal Pradesh with Himvigo. Premium, offbeat Spiti Valley tours and reliable Chandigarh to Manali cab services.",
 };
 
 export default async function HomePage() {
@@ -18,8 +20,8 @@ export default async function HomePage() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "TravelAgency",
-    "name": "HimachalTrek Tours",
-    "image": "https://yourwebsite.com/logo.png",
+    "name": "Himvigo Tours",
+    "image": "https://himvigo.com/logo.png",
     "description": "Premium Tour Operator in Himachal Pradesh.",
     "address": {
       "@type": "PostalAddress",
@@ -31,24 +33,24 @@ export default async function HomePage() {
   };
 
   const features = [
-    { icon: <ShieldCheck className="w-8 h-8 text-forest-700" />, title: "Secure & Trusted", desc: "Government verified taxi operators and registered stays." },
-    { icon: <Compass className="w-8 h-8 text-forest-700" />, title: "Offbeat Routes", desc: "We take you where regular tourists don't go." },
-    { icon: <Users className="w-8 h-8 text-forest-700" />, title: "Local Experts", desc: "Our guides are born and raised in the Himalayas." },
-    { icon: <Star className="w-8 h-8 text-forest-700" />, title: "5-Star Experince", desc: "Rated 4.9/5 by over 2,000 happy travelers." },
+    { icon: <ShieldCheck className="w-8 h-8 text-forest-700" />, title: "Quality & Safety", desc: "Your safety is our priority. We use well-maintained vehicles and verified stays." },
+    { icon: <Compass className="w-8 h-8 text-forest-700" />, title: "Personalized Service", desc: "Every traveler is unique. We customize itineraries to match your preferences." },
+    { icon: <Users className="w-8 h-8 text-forest-700" />, title: "Expert Local Guides", desc: "Our local experts know the Himalayas like the back of their hand." },
+    { icon: <Trophy className="w-8 h-8 text-forest-700" />, title: "Best Price Guarantee", desc: "Premium experiences at competitive prices with zero hidden costs." },
   ];
 
   const destinations = [
-    { name: "Spiti Valley", img: "/hero-spiti.png", tag: "The Middle Land", col: "md:col-span-2", row: "md:row-span-2" },
-    { name: "Manali", img: "/placeholder-mountain.png", tag: "Valley of the Gods", col: "md:col-span-1", row: "md:row-span-1" },
-    { name: "Kasol", img: "/kasol.png", tag: "Mini Israel", col: "md:col-span-1", row: "md:row-span-1" },
-    { name: "Shimla", img: "https://images.unsplash.com/photo-1595815771614-ade9d652a65d?auto=format&fit=crop&w=800&q=80", tag: "Queen of Hills", col: "md:col-span-1", row: "md:row-span-1" },
-    { name: "Dharamshala", img: "https://images.unsplash.com/photo-1626714486801-1b9195ba2571?auto=format&fit=crop&w=800&q=80", tag: "Little Lhasa", col: "md:col-span-1", row: "md:row-span-1" },
+    { name: "Spiti Valley", img: "/images/destinations/spiti.png", tag: "The Middle Land", col: "md:col-span-2", row: "md:row-span-2" },
+    { name: "Manali", img: "/images/destinations/manali.png", tag: "Valley of the Gods", col: "md:col-span-1", row: "md:row-span-1" },
+    { name: "Kasol", img: "/images/destinations/kasol.png", tag: "Mini Israel", col: "md:col-span-1", row: "md:row-span-1" },
+    { name: "Shimla", img: "/images/destinations/shimla.png", tag: "Queen of Hills", col: "md:col-span-1", row: "md:row-span-1" },
+    { name: "Dharamshala", img: "/images/destinations/dharamshala.png", tag: "Little Lhasa", col: "md:col-span-1", row: "md:row-span-1" },
   ];
 
   const testimonials = [
     { name: "Rahul Sharma", text: "The Spiti expedition was completely mind-blowing. The driver was highly experienced on dangerous roads and the homestays were incredibly warm.", pkg: "Spiti Valley Road Trip" },
     { name: "Priya Desai", text: "Booked a tempo traveller for my family of 10. Seamless experience from Chandigarh pickup to Manali drop. Highly recommended!", pkg: "Manali Premium Snow Retreat" },
-    { name: "Arjun Mehta", text: "I wanted an offbeat track in Kinnaur, and HimachalTrek delivered. Local knowledge makes a huge difference.", pkg: "Custom Kinnaur Tour" }
+    { name: "Arjun Mehta", text: "I wanted an offbeat track in Kinnaur, and Himvigo delivered. Local knowledge makes a huge difference.", pkg: "Custom Kinnaur Tour" }
   ];
 
   return (
@@ -58,14 +60,27 @@ export default async function HomePage() {
       {/* Hero Section */}
       <section className="relative min-h-[90vh] flex flex-col justify-center items-center overflow-hidden bg-forest-900 pt-32 pb-24">
         {/* Background Layer */}
-        <div className="absolute inset-0 z-0 bg-slate-950">
+        <div className="absolute inset-0 z-0">
           <img 
-            src="/hero-spiti.png" 
+            src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1920&q=80" 
             alt="Majestic Spiti landscape" 
-            className="w-full h-full object-cover opacity-60 mix-blend-luminosity scale-110 animate-pulse" 
-            style={{ animationDuration: '20s' }} 
+            className="w-full h-full object-cover opacity-80 scale-100 animate-[pulse_10s_ease-in-out_infinite]" 
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-50 via-slate-50/10 to-transparent"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-950/40 via-transparent to-transparent"></div>
+          
+          {/* Enhanced White Smoke / Fog Effect */}
+          <div className="absolute bottom-0 left-0 w-full h-80 z-20 pointer-events-none overflow-hidden">
+            {/* Base Fade */}
+            <div className="absolute inset-x-0 bottom-0 h-full bg-gradient-to-t from-slate-50 via-slate-50/90 to-transparent"></div>
+            
+            {/* Dynamic Smoke Blobs */}
+            <div className="absolute -bottom-10 left-[-10%] w-[40%] h-64 bg-white/40 blur-[80px] rounded-full animate-[pulse_8s_infinite] opacity-60"></div>
+            <div className="absolute -bottom-20 left-[20%] w-[50%] h-72 bg-white/30 blur-[100px] rounded-full animate-[pulse_12s_infinite] opacity-50"></div>
+            <div className="absolute -bottom-10 right-[-10%] w-[40%] h-64 bg-white/40 blur-[80px] rounded-full animate-[pulse_10s_infinite] opacity-60"></div>
+            
+            {/* Subtle Texture Overlay */}
+            <div className="absolute inset-0 opacity-10 mix-blend-overlay" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '40px 40px' }}></div>
+          </div>
         </div>
         
         {/* Text & Content Layer */}
@@ -96,7 +111,7 @@ export default async function HomePage() {
             </h1>
             
             <p className="text-base md:text-2xl text-slate-100 mb-10 md:mb-14 font-inter text-center max-w-2xl drop-shadow-xl font-medium mix-blend-screen leading-snug md:leading-normal px-4">
-              Uncover the raw beauty of Spiti, scale the heights of Manali, and relax in the pines of Kasol. Authentic, secure, and unmatched.
+              Uncover the raw beauty of Spiti, scale the heights of Manali, and relax in the pines of Kasol. Authentic, secure, and unmatched. Premium Cab services and custom tours for every traveler.
             </p>
           </div>
           
@@ -131,7 +146,7 @@ export default async function HomePage() {
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
           <div className="max-w-2xl">
             <h2 className="text-3xl md:text-5xl font-outfit font-bold text-slate-900">
-              Handpicked Himalayan Journeys
+              All Top Packages
             </h2>
             <div className="h-1.5 w-24 bg-forest-700 mt-6 rounded-full" />
             <p className="text-slate-600 mt-6 font-inter text-lg">
@@ -150,11 +165,18 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* Popular Destinations Slider */}
+      <section className="py-24 bg-slate-950 overflow-hidden w-full flex justify-center">
+        <div className="w-full max-w-7xl px-4 md:px-8">
+          <RegionSlider />
+        </div>
+      </section>
+
       {/* Why Choose Us */}
       <section className="py-24 bg-white border-y border-slate-100">
         <div className="max-w-7xl mx-auto px-4 md:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-outfit font-bold text-slate-900 leading-tight">The HimachalTrek Difference</h2>
+            <h2 className="text-3xl md:text-5xl font-outfit font-bold text-slate-900 leading-tight">Why Choose Us</h2>
             <div className="h-1.5 w-24 bg-amber-500 mt-6 rounded-full mx-auto" />
             <p className="text-slate-500 mt-6 font-inter text-lg max-w-2xl mx-auto font-medium leading-relaxed">Experience the majestic Himalayas with premium comfort, local wisdom, and zero compromises on safety.</p>
           </div>
@@ -175,41 +197,21 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Expanded Destinations Gallery UI using Swiper */}
-      <section className="py-24 md:py-28 bg-slate-950 text-white overflow-hidden border-t border-slate-900">
-        <div className="max-w-7xl mx-auto xl:ml-auto xl:mr-0 pl-4 md:pl-8 pr-0 xl:pr-0 2xl:ml-auto 2xl:mr-auto 2xl:px-8 w-full">
-          <RegionSlider />
+      {/* Full Width Fun Activities Swiper */}
+      <section className="py-28 bg-slate-50 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 md:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-5xl font-outfit font-bold text-slate-900 leading-tight">Fun Activities</h2>
+            <div className="h-1.5 w-24 bg-amber-500 mt-6 rounded-full mx-auto" />
+            <p className="text-slate-500 mt-6 font-inter text-lg max-w-2xl mx-auto font-medium">From high-altitude trekking to white water rafting, experience the thrill of the Himalayas.</p>
+          </div>
+          <ActivitiesSlider />
         </div>
       </section>
 
-      {/* Process / How it works */}
-      <section className="py-28 bg-forest-50/50">
-        <div className="max-w-7xl mx-auto px-4 md:px-8 text-center">
-          <h2 className="text-3xl md:text-5xl font-outfit font-bold text-slate-900 mb-24">How to Plan Your Journey</h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-16 relative">
-            <div className="hidden md:block absolute top-[2.5rem] left-[16.666%] right-[16.666%] h-0.5 bg-gradient-to-r from-forest-200 via-forest-400 to-forest-200 z-0"></div>
-            
-            <div className="relative z-10 flex flex-col items-center group">
-              <div className="w-20 h-20 rounded-full bg-forest-700 text-white flex items-center justify-center text-3xl font-outfit font-extrabold ring-8 ring-forest-50 shadow-xl mb-8 group-hover:bg-amber-500 group-hover:scale-110 transition-all duration-300">1</div>
-              <h3 className="text-xl font-bold text-slate-900 mb-4 font-outfit">Find Your Package</h3>
-              <p className="text-slate-500 font-inter max-w-xs leading-relaxed">Browse our curated list of destinations and find the tier that suits your budget.</p>
-            </div>
-            
-            <div className="relative z-10 flex flex-col items-center group">
-              <div className="w-20 h-20 rounded-full bg-forest-700 text-white flex items-center justify-center text-3xl font-outfit font-extrabold ring-8 ring-forest-50 shadow-xl mb-8 group-hover:bg-amber-500 group-hover:scale-110 transition-all duration-300 flex-shrink-0">2</div>
-              <h3 className="text-xl font-bold text-slate-900 mb-4 font-outfit">Customize & Quote</h3>
-              <p className="text-slate-500 font-inter max-w-xs leading-relaxed">Speak to our experts. Add extra days, upgrade vehicles, or choose specific homestays.</p>
-            </div>
-            
-            <div className="relative z-10 flex flex-col items-center group">
-              <div className="w-20 h-20 rounded-full bg-forest-700 text-white flex items-center justify-center text-3xl font-outfit font-extrabold ring-8 ring-forest-50 shadow-xl mb-8 group-hover:bg-amber-500 group-hover:scale-110 transition-all duration-300">3</div>
-              <h3 className="text-xl font-bold text-slate-900 mb-4 font-outfit">Pack & Experience</h3>
-              <p className="text-slate-500 font-inter max-w-xs leading-relaxed">Show up with your bags. We handle the driving, the permits, and the stays.</p>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Blogs Section */}
+      <BlogSection />
+
 
       {/* Swiper Testimonials */}
       <section className="py-24 bg-white border-b border-slate-100">

@@ -12,11 +12,11 @@ export const Footer = () => {
               <MountainSnow className="w-6 h-6" />
             </div>
             <span className="font-outfit font-bold text-xl tracking-wide text-white">
-              Himachal<span className="font-light">Trek</span>
+              Himvigo
             </span>
           </Link>
           <p className="text-forest-200 text-sm leading-relaxed font-inter pr-4">
-            Your premium travel partner for offbeat tours, secure taxi services, and unforgettable memories in the heart of the Himalayas.
+            Your premium travel partner for offbeat tours, secure cab services, and unforgettable memories in the heart of the Himalayas.
           </p>
           <div className="flex items-center gap-4">
             <a href="#" className="p-2 bg-white/5 rounded-full hover:bg-white/10 transition-colors text-forest-200 hover:text-white">
@@ -37,7 +37,7 @@ export const Footer = () => {
           <ul className="space-y-4 text-sm font-inter text-forest-200">
             <li><Link href="/about" className="hover:text-white transition-colors">About Us</Link></li>
             <li><Link href="/packages" className="hover:text-white transition-colors">Tour Packages</Link></li>
-            <li><Link href="/taxi-services" className="hover:text-white transition-colors">Taxi Services</Link></li>
+            <li><Link href="/cab" className="hover:text-white transition-colors">Cab Services</Link></li>
             <li><Link href="/destinations" className="hover:text-white transition-colors">Top Destinations</Link></li>
             <li><Link href="/blog" className="hover:text-white transition-colors">Travel Blog</Link></li>
           </ul>
@@ -65,18 +65,18 @@ export const Footer = () => {
             </li>
             <li className="flex items-center gap-4">
               <Phone className="w-5 h-5 shrink-0 text-amber-500" />
-              <span>+91 98765 43210</span>
+              <span>+91 70183 18824</span>
             </li>
             <li className="flex items-center gap-4">
               <Mail className="w-5 h-5 shrink-0 text-amber-500" />
-              <span>hello@himachaltrek.com</span>
+              <span>hello@himvigo.com</span>
             </li>
           </ul>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 md:px-8 text-center text-sm text-forest-400 font-inter flex flex-col md:flex-row items-center justify-between gap-4">
-        <span>© {new Date().getFullYear()} HimachalTrek. All rights reserved.</span>
+        <span>© {new Date().getFullYear()} Himvigo. All rights reserved.</span>
         <span>Designed with passion for the Himalayas.</span>
       </div>
     </footer>

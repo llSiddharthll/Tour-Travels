@@ -1,4 +1,5 @@
 import { TourPackage } from "@/components/ui/PackageCard";
+import pool from "./pool";
 
 const MOCK_PACKAGES: TourPackage[] = [
   {
@@ -9,7 +10,7 @@ const MOCK_PACKAGES: TourPackage[] = [
     price_per_person: 14999,
     duration_days: 7,
     duration_nights: 6,
-    image_urls: ["/kasol.png", "/hero-spiti.png"],
+    image_urls: ["/images/destinations/spiti.png"],
     vehicle_type: "Tempo Traveller",
     max_occupancy: 12,
     description: "Embark on an unforgettable journey through the rugged terrains of the cold Himalayan desert. The Spiti Valley expedition takes you through high-altitude passes, ancient monasteries, and moon-like landscapes. Experience the thrill of crossing the treacherous Kunzum Pass, camp by the mesmerizing Chandratal Lake, and interact with the warm locals surviving in extremes.",
@@ -45,7 +46,7 @@ const MOCK_PACKAGES: TourPackage[] = [
     price_per_person: 8999,
     duration_days: 4,
     duration_nights: 3,
-    image_urls: ["/placeholder-mountain.png", "/kasol.png"],
+    image_urls: ["/images/destinations/manali.png"],
     vehicle_type: "Innova Crysta",
     max_occupancy: 6,
     description: "A perfect short getaway to the Valley of the Gods. This premium retreat is designed for families and couples seeking luxury amidst snow-capped peaks. Stay in top-rated resorts, enjoy private taxi transfers, and experience the thrill of snow activities in Solang Valley.",
@@ -76,7 +77,7 @@ const MOCK_PACKAGES: TourPackage[] = [
     price_per_person: 18499,
     duration_days: 8,
     duration_nights: 7,
-    image_urls: ["/hero-spiti.png"],
+    image_urls: ["/images/destinations/spiti.png"],
     vehicle_type: "4x4 SUV",
     max_occupancy: 4,
     description: "For the hardcore adventure enthusiasts. This tour takes you deep into the remote corners of Lahaul and Spiti, places that remain cutoff from the rest of the world for half the year. Requires good physical fitness and an appetite for adventure.",
@@ -111,7 +112,7 @@ const MOCK_PACKAGES: TourPackage[] = [
     price_per_person: 6499,
     duration_days: 4,
     duration_nights: 3,
-    image_urls: ["/kasol.png"],
+    image_urls: ["/images/destinations/kasol.png"],
     vehicle_type: "Tempo Traveller",
     max_occupancy: 12,
     description: "Experience the vibrant hippie culture of Kasol and trek through the dense pine forests of Parvati Valley to reach the mystical Kheerganga hot springs. Perfect for solo travelers and groups of friends looking for an escape.",
@@ -142,7 +143,7 @@ const MOCK_PACKAGES: TourPackage[] = [
     price_per_person: 11999,
     duration_days: 5,
     duration_nights: 4,
-    image_urls: ["https://images.unsplash.com/photo-1595815771614-ade9d652a65d?auto=format&fit=crop&w=800&q=80"],
+    image_urls: ["/images/destinations/shimla.png"],
     vehicle_type: "Sedan / SUV",
     max_occupancy: 4,
     description: "Step back in time to the era of the British Raj. This heritage tour focuses on the colonial architecture, the legendary toy train ride, and peaceful walks through the deep cedar forests of Mashobra and Naldehra.",
@@ -174,7 +175,7 @@ const MOCK_PACKAGES: TourPackage[] = [
     price_per_person: 13499,
     duration_days: 6,
     duration_nights: 5,
-    image_urls: ["https://images.unsplash.com/photo-1626714486801-1b9195ba2571?auto=format&fit=crop&w=800&q=80"],
+    image_urls: ["/images/destinations/dharamshala.png"],
     vehicle_type: "Innova / Sedan",
     max_occupancy: 6,
     description: "A perfect blend of Tibetan spirituality in McLeod Ganj and unspoiled colonial charm in Dalhousie. Experience the serene monasteries, cascading waterfalls, and the spectacular 'Mini Switzerland of India' at Khajjiar.",
@@ -198,19 +199,93 @@ const MOCK_PACKAGES: TourPackage[] = [
       "Any extra stops not in itinerary"
     ],
     categories: ["family", "spiritual"]
+  },
+  {
+    id: "7",
+    slug: "kinnaur-valleys-exploration",
+    title: "Kinnaur Apple Orchards Tour",
+    location: "Kinnaur",
+    price_per_person: 12499,
+    duration_days: 6,
+    duration_nights: 5,
+    image_urls: ["/images/destinations/kinnaur.png"],
+    vehicle_type: "SUV",
+    max_occupancy: 6,
+    description: "Discover the land of gods and myths. Kinnaur is famous for its massive apple orchards, ancient temples, and the majestic Kinner Kailash range. Experience the hospitality of the high mountains.",
+    itinerary: [
+      { day: 1, title: "Shimla to Sarahan", activities: "Drive to Sarahan. Visit the famous Bhimakali Temple." },
+      { day: 2, title: "Sarahan to Sangla", activities: "Drive into the beautiful Sangla Valley. Explore Kamru Fort." },
+      { day: 3, title: "Chitkul - The Last Village", activities: "Visit Chitkul, the last inhabited village on the Indo-Tibetan border." },
+      { day: 4, title: "Sangla to Kalpa", activities: "Drive to Kalpa. Witness the sunrise over Kinner Kailash." },
+      { day: 5, title: "Kalpa Local & Roghi Village", activities: "Visit the Roghi village and the famous suicide point. Walk through orchards." },
+      { day: 6, title: "Departure", activities: "Drive back to Shimla/Chandigarh." }
+    ],
+    inclusions: ["Transfers in SUV", "Stay in Boutique Hotels", "Breakfast & Dinner", "Guide"],
+    exclusions: ["Lunch", "Internal permits for foreigners", "Tips"],
+    categories: ["offbeat", "culture"]
+  },
+  {
+    id: "8",
+    slug: "manali-solang-honeymoon",
+    title: "Romantic Manali Honeymoon Special",
+    location: "Manali",
+    price_per_person: 15999,
+    duration_days: 5,
+    duration_nights: 4,
+    image_urls: ["/images/destinations/manali.png"],
+    vehicle_type: "Private Sedan",
+    max_occupancy: 2,
+    description: "A specially curated romantic getaway for newlyweds. Includes candlelight dinners, flower decorations, and private tours of the most scenic spots in Manali.",
+    itinerary: [
+      { day: 1, title: "Arrival & Welcome", activities: "Pickup from Kullu. Flower decoration in room. Candlelight dinner." },
+      { day: 2, title: "Snow Point & Solang", activities: "Private tour to Rohtang/Solang. Photography session in snow." },
+      { day: 3, title: "Kullu & Manikaran", activities: "Visit the holy Manikaran gurudwara and enjoy river crossing in Kullu." },
+      { day: 4, title: "Old Manali Walks", activities: "Cafe hopping in Old Manali and shopping at Mall Road." },
+      { day: 5, title: "Departure", activities: "Drop off in Chandigarh." }
+    ],
+    inclusions: ["Honeymoon inclusions (Cake, Milk, Flower decoration)", "Candlelight Dinner", "Private Transfers", "Luxury Stay"],
+    exclusions: ["Activity costs", "Everything else"],
+    categories: ["honeymoon"]
   }
 ];
 
 export async function getFeaturedPackages(): Promise<TourPackage[]> {
-  // In a real app, query database
+  if (process.env.DATABASE_URL) {
+    try {
+      const { rows } = await pool.query('SELECT * FROM tour_packages WHERE is_featured = TRUE ORDER BY created_at DESC LIMIT 3');
+      if (rows.length > 0) return rows as TourPackage[];
+    } catch (error) {
+      console.error('Error fetching featured packages from DB:', error);
+    }
+  }
   return MOCK_PACKAGES.slice(0, 3);
 }
 
 export async function getPackageBySlug(slug: string): Promise<TourPackage | null> {
+  if (process.env.DATABASE_URL) {
+    try {
+      const res = await pool.query('SELECT * FROM tour_packages WHERE slug = $1', [slug]);
+      if (res.rows.length > 0) {
+        return res.rows[0] as TourPackage;
+      }
+    } catch (error) {
+      console.error(`[DB Error] Failed to fetch package ${slug}, falling back to mock data:`, error);
+    }
+  }
   const pkg = MOCK_PACKAGES.find(p => p.slug === slug);
   return pkg || null;
 }
 
 export async function getAllPackages(): Promise<TourPackage[]> {
+  if (process.env.DATABASE_URL) {
+    try {
+      const res = await pool.query('SELECT * FROM tour_packages ORDER BY created_at DESC');
+      if (res.rows.length > 0) {
+        return res.rows as TourPackage[];
+      }
+    } catch (error) {
+      console.error('[DB Error] Failed to fetch all packages, falling back to mock data:', error);
+    }
+  }
   return MOCK_PACKAGES;
 }

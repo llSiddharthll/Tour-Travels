@@ -10,7 +10,7 @@ import { ArrowLeft, ArrowRight, Quote, Star } from "lucide-react";
 const testimonials = [
   { name: "Rahul Sharma", text: "The Spiti expedition was completely mind-blowing. The driver was highly experienced on dangerous roads and the homestays were incredibly warm.", pkg: "Spiti Valley Road Trip" },
   { name: "Priya Desai", text: "Booked a tempo traveller for my family of 10. Seamless experience from Chandigarh pickup to Manali drop. Highly recommended!", pkg: "Manali Premium Snow Retreat" },
-  { name: "Arjun Mehta", text: "I wanted an offbeat track in Kinnaur, and HimachalTrek delivered. Local knowledge makes a huge difference.", pkg: "Custom Kinnaur Tour" },
+  { name: "Arjun Mehta", text: "I wanted an offbeat track in Kinnaur, and Himvigo delivered. Local knowledge makes a huge difference.", pkg: "Custom Kinnaur Tour" },
   { name: "Samantha Lee", text: "Our Kasol trek was straight out of a movie. The organization was flawless, the guides were friendly and knew exactly where the best views were.", pkg: "Kasol & Kheerganga Backpacking" }
 ];
 

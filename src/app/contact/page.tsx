@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ChevronRight, MapPin, Phone, Mail, Send, Clock, Map } from "lucide-react";
 
 export const metadata = {
-  title: "Contact Us | HimachalTrek",
+  title: "Contact Us | Himvigo Tours",
   description: "Get in touch with our local Himalayan travel experts to start planning your perfect offbeat getaway.",
 };
 
@@ -64,7 +64,7 @@ export default function ContactPage() {
                   </div>
                   <div className="ml-5">
                     <p className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-1 font-inter">Call Center</p>
-                    <p className="text-lg font-bold text-white tracking-wide font-outfit">+91 98765 43210</p>
+                    <p className="text-lg font-bold text-white tracking-wide font-outfit">+91 70183 18824</p>
                     <p className="text-sm text-slate-400 mt-1">Mon-Sun, 9am till 8pm</p>
                   </div>
                 </div>
@@ -75,7 +75,7 @@ export default function ContactPage() {
                   </div>
                   <div className="ml-5">
                     <p className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-1 font-inter">Email Us</p>
-                    <p className="text-base font-medium text-slate-200 transition-colors hover:text-amber-400">explore@himachaltrek.in</p>
+                    <p className="text-base font-medium text-slate-200 transition-colors hover:text-amber-400">explore@himvigo.in</p>
                   </div>
                 </div>
               </div>
@@ -104,7 +104,7 @@ export default function ContactPage() {
                     <input 
                       type="text" 
                       placeholder="Jane Doe" 
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-5 py-3.5 focus:ring-2 focus:ring-forest-500 focus:border-forest-500 outline-none transition-all font-medium text-slate-900 placeholder:font-normal placeholder-slate-400"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-5 py-3.5 focus:ring-2 focus:ring-forest-500 focus:border-forest-500 outline-none transition-all font-medium text-slate-900 placeholder-slate-400"
                     />
                   </div>
                   <div className="flex flex-col gap-2">
@@ -112,37 +112,63 @@ export default function ContactPage() {
                     <input 
                       type="tel" 
                       placeholder="+91" 
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-5 py-3.5 focus:ring-2 focus:ring-forest-500 focus:border-forest-500 outline-none transition-all font-medium text-slate-900 placeholder:font-normal placeholder-slate-400"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-5 py-3.5 focus:ring-2 focus:ring-forest-500 focus:border-forest-500 outline-none transition-all font-medium text-slate-900 placeholder-slate-400"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="flex flex-col gap-2">
-                    <label className="text-[13px] font-bold text-slate-700 uppercase tracking-wide">Email Address</label>
+                    <label className="text-[13px] font-bold text-slate-700 uppercase tracking-wide">Departure From</label>
                     <input 
-                      type="email" 
-                      placeholder="jane@example.com" 
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-5 py-3.5 focus:ring-2 focus:ring-forest-500 focus:border-forest-500 outline-none transition-all font-medium text-slate-900 placeholder:font-normal placeholder-slate-400"
+                      type="text" 
+                      placeholder="Starting City (e.g. Chandigarh)" 
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-5 py-3.5 focus:ring-2 focus:ring-forest-500 focus:border-forest-500 outline-none transition-all font-medium text-slate-900 placeholder-slate-400"
                     />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-[13px] font-bold text-slate-700 uppercase tracking-wide">Interested In</label>
+                    <label className="text-[13px] font-bold text-slate-700 uppercase tracking-wide">Destination To</label>
+                    <input 
+                      type="text" 
+                      placeholder="Where to go (e.g. Spiti Valley)" 
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-5 py-3.5 focus:ring-2 focus:ring-forest-500 focus:border-forest-500 outline-none transition-all font-medium text-slate-900 placeholder-slate-400"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="flex flex-col gap-2">
+                    <label className="text-[13px] font-bold text-slate-700 uppercase tracking-wide">Travel Date</label>
+                    <input 
+                      type="date" 
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-5 py-3.5 focus:ring-2 focus:ring-forest-500 focus:border-forest-500 outline-none transition-all font-medium text-slate-900 appearance-none cursor-pointer"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <label className="text-[13px] font-bold text-slate-700 uppercase tracking-wide">Passengers</label>
                     <select className="w-full bg-slate-50 border border-slate-200 rounded-xl px-5 py-3.5 focus:ring-2 focus:ring-forest-500 focus:border-forest-500 outline-none transition-all font-medium text-slate-900 appearance-none cursor-pointer">
-                      <option>Offbeat Tour Package</option>
-                      <option>Honeymoon Retreat</option>
-                      <option>Taxi Booking</option>
-                      <option>Custom Itinerary</option>
-                      <option>General Support</option>
+                      <option>1 Person</option>
+                      <option>2 People</option>
+                      <option>3 - 5 People</option>
+                      <option>5 - 10 People</option>
+                      <option>Large Group (10+)</option>
                     </select>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <label className="text-[13px] font-bold text-slate-700 uppercase tracking-wide">Duration</label>
+                    <input 
+                      type="text" 
+                      placeholder="e.g. 5 Days" 
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl px-5 py-3.5 focus:ring-2 focus:ring-forest-500 focus:border-forest-500 outline-none transition-all font-medium text-slate-900 placeholder-slate-400"
+                    />
                   </div>
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <label className="text-[13px] font-bold text-slate-700 uppercase tracking-wide">Travel Details</label>
+                  <label className="text-[13px] font-bold text-slate-700 uppercase tracking-wide">Your Message</label>
                   <textarea 
                     rows={4} 
-                    placeholder="Tell us about your trip (number of people, expected dates, specific places you want to visit...)" 
+                    placeholder="Tell us more about your requirements..." 
                     className="w-full bg-slate-50 border border-slate-200 rounded-xl px-5 py-3.5 focus:ring-2 focus:ring-forest-500 focus:border-forest-500 outline-none transition-all font-medium text-slate-900 placeholder:font-normal placeholder-slate-400 resize-none"
                   ></textarea>
                 </div>

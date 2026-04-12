@@ -26,8 +26,8 @@ export const BottomCTA = () => {
           <Link href="/contact" className="w-full sm:w-auto px-10 py-5 bg-amber-500 hover:bg-amber-400 text-slate-900 font-extrabold rounded-2xl text-lg transition-all shadow-[0_0_40px_-10px_rgba(245,158,11,0.5)] hover:shadow-[0_0_60px_-15px_rgba(245,158,11,0.7)] hover:-translate-y-1">
             Start Planning Now
           </Link>
-          <a href="tel:+919876543210" className="w-full sm:w-auto px-10 py-5 bg-white/5 hover:bg-white/10 text-white backdrop-blur-sm border border-white/20 font-bold rounded-2xl text-lg transition-all text-center">
-            Call us: +91 98765 43210
+          <a href="tel:+917018318824" className="w-full sm:w-auto px-10 py-5 bg-white/5 hover:bg-white/10 text-white backdrop-blur-sm border border-white/20 font-bold rounded-2xl text-lg transition-all text-center">
+            Call us: +91 70183 18824
           </a>
         </div>
       </div>

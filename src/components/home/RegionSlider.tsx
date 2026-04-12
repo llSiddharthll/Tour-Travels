@@ -9,11 +9,12 @@ import Link from "next/link";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
 export const destinations = [
-  { name: "Spiti Valley", slug: "spiti-valley", img: "/hero-spiti.png", tag: "The Middle Land" },
-  { name: "Manali", slug: "manali", img: "/placeholder-mountain.png", tag: "Valley of the Gods" },
-  { name: "Kasol", slug: "kasol", img: "/kasol.png", tag: "Mini Israel" },
-  { name: "Shimla", slug: "shimla", img: "https://images.unsplash.com/photo-1595815771614-ade9d652a65d?auto=format&fit=crop&w=800&q=80", tag: "Queen of Hills" },
-  { name: "Dharamshala", slug: "dharamshala", img: "/dharamshala.png", tag: "Little Lhasa" },
+  { name: "Spiti Valley", slug: "spiti-valley", img: "/images/destinations/spiti.png", tag: "The Middle Land" },
+  { name: "Manali", slug: "manali", img: "/images/destinations/manali.png", tag: "Valley of the Gods" },
+  { name: "Kasol", slug: "kasol", img: "/images/destinations/kasol.png", tag: "Mini Israel" },
+  { name: "Shimla", slug: "shimla", img: "/images/destinations/shimla.png", tag: "Queen of Hills" },
+  { name: "Dharamshala", slug: "dharamshala", img: "/images/destinations/dharamshala.png", tag: "Little Lhasa" },
+  { name: "Kinnaur", slug: "kinnaur", img: "/images/destinations/kinnaur.png", tag: "Land of Fairytales" },
 ];
 
 export default function RegionSlider() {
@@ -30,7 +31,7 @@ export default function RegionSlider() {
     <div className="relative w-full">
       <div className="flex justify-between items-end mb-10">
         <div>
-          <h2 className="text-3xl md:text-5xl font-outfit font-bold text-white tracking-tight">Explore by Region</h2>
+          <h2 className="text-3xl md:text-5xl font-outfit font-bold text-white tracking-tight">Explore by Destination</h2>
           <div className="h-1.5 w-24 bg-amber-500 mt-5 rounded-full" />
         </div>
         
@@ -48,24 +49,19 @@ export default function RegionSlider() {
       <Swiper
         modules={[Navigation, Autoplay]}
         spaceBetween={24}
-        slidesPerView={1.15}
-        centeredSlides={false}
-        breakpoints={{
-          640: { slidesPerView: 2.2 },
-          1024: { slidesPerView: 3.2 },
-          1280: { slidesPerView: 4 }
-        }}
+        slidesPerView={"auto"}
+        centeredSlides={true}
         navigation={{
           prevEl: ".custom-prev-btn",
           nextEl: ".custom-next-btn",
         }}
         autoplay={{ delay: 3500, disableOnInteraction: true }}
         loop={true}
-        className="!overflow-visible" // Important for slidesPerView fraction
+        className="!overflow-visible px-4 md:px-0" 
       >
         {destinations.map((dest, i) => (
-          <SwiperSlide key={i} className="h-full">
-            <Link href={`/destinations`} className="block w-full h-[350px] md:h-[450px] rounded-3xl overflow-hidden relative group cursor-pointer shadow-xl border border-white/10 select-none">
+          <SwiperSlide key={i} className="h-full !w-[300px] md:!w-[380px]">
+            <Link href={`/destinations/${dest.slug}`} className="block w-full h-[350px] md:h-[450px] rounded-3xl overflow-hidden relative group cursor-pointer shadow-xl border border-white/10 select-none">
               <div className="absolute inset-0 bg-slate-900/40 group-hover:bg-slate-900/10 transition-colors duration-500 z-10" />
               <img src={dest.img} className="w-full h-full object-cover transition-transform duration-[3000ms] group-hover:scale-110" alt={dest.name} />
               

@@ -2,8 +2,8 @@ import { ShieldCheck, Users, Heart, Map, Award, Globe, MessageCircle } from "luc
 import { BottomCTA } from "@/components/ui/BottomCTA";
 
 export const metadata = {
-  title: "About Us | HimachalTrek - Authentic Himalayan Experiences",
-  description: "Learn about HimachalTrek's journey, our mission to provide authentic travel experiences, and the team behind your favorite Himalayan adventures.",
+  title: "About Us | Himvigo - Authentic Himalayan Experiences",
+  description: "Learn about Himvigo's journey, our mission to provide authentic travel experiences, and the team behind your favorite Himalayan adventures.",
 };
 
 export default function AboutPage() {
@@ -13,8 +13,8 @@ export default function AboutPage() {
       <section className="relative h-[60vh] flex items-center justify-center overflow-hidden bg-slate-900">
         <div className="absolute inset-0 z-0">
           <img 
-            src="/about-hero.png" 
-            alt="HimachalTrek Travelers" 
+            src="/hero-spiti.png" 
+            alt="Himvigo Travelers" 
             className="w-full h-full object-cover opacity-60 mix-blend-overlay"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-white via-white/20 to-transparent"></div>
@@ -60,7 +60,7 @@ export default function AboutPage() {
               
               <div className="mt-10 space-y-8 text-lg text-slate-600 font-inter leading-relaxed">
                 <p>
-                  HimachalTrek started in a small wooden cabin in Manali with a simple belief: the real beauty of the Himalayas isn't in the overcrowded shopping streets, but in the silent valleys and home-cooked meals of remote villages.
+                  Himvigo started in a small wooden cabin in Manali with a simple belief: the real beauty of the Himalayas isn't in the overcrowded shopping streets, but in the silent valleys and home-cooked meals of remote villages.
                 </p>
                 <p>
                   Today, we are a network of local guides, drivers, and host families who shared this vision. We specialize in offbeat Spiti expeditions and luxury Kinnaur circuits, ensuring every traveler leaves with a piece of the mountains in their heart.

@@ -4,7 +4,7 @@ import Image from "next/image";
 import { BottomCTA } from "@/components/ui/BottomCTA";
 
 export const metadata = {
-  title: "Destinations | HimachalTrek",
+  title: "Destinations | Himvigo Tours",
   description: "Explore the magical regions of Himachal Pradesh. From the cold desert of Spiti to the green valleys of Kullu Manali.",
 };
 
@@ -17,7 +17,7 @@ const destinationsData = [
     bestTime: "June to October",
     altitude: "12,500 ft (avg)",
     vibe: "Adventure & Spiritual",
-    image: "/hero-spiti.png",
+    image: "https://images.unsplash.com/photo-1586724230411-48b2d1dd2571?auto=format&fit=crop&w=1200&q=80",
     highlights: ["Key Monastery", "Chandratal Lake", "Komic Village", "Kunzum Pass"],
   },
   {
@@ -28,7 +28,7 @@ const destinationsData = [
     bestTime: "October to June",
     altitude: "6,726 ft",
     vibe: "Romantic & Leisure",
-    image: "/placeholder-mountain.png",
+    image: "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=1200&q=80",
     highlights: ["Rohtang Pass", "Solang Valley", "Old Manali", "Hadimba Temple"],
   },
   {
@@ -39,7 +39,7 @@ const destinationsData = [
     bestTime: "March to May",
     altitude: "5,180 ft",
     vibe: "Backpacking & Nature",
-    image: "/kasol.png",
+    image: "https://images.unsplash.com/photo-1599661046289-e31887846eac?auto=format&fit=crop&w=1200&q=80",
     highlights: ["Kheerganga Trek", "Tosh Village", "Parvati River", "Malana"],
   },
   {
@@ -61,8 +61,19 @@ const destinationsData = [
     bestTime: "February to June",
     altitude: "4,780 ft",
     vibe: "Culture & Peace",
-    image: "https://images.unsplash.com/photo-1626714486801-1b9195ba2571?auto=format&fit=crop&w=1200&q=80",
+    image: "https://images.unsplash.com/photo-1524443169398-9aa1ceab67d5?auto=format&fit=crop&w=1200&q=80",
     highlights: ["McLeod Ganj", "Triund Trek", "Dal Lake", "Bhagsu Waterfall"],
+  },
+  {
+    slug: "kinnaur",
+    name: "Kinnaur",
+    tagline: "Land of Fairytales",
+    description: "A mountainous district in the northern Indian state of Himachal Pradesh. It is known for its apples and the Kinner Kailash. Beautiful river valleys, rugged terrains, and warm people.",
+    bestTime: "April to October",
+    altitude: "7,612 ft (Rekong Peo)",
+    vibe: "Offbeat & Pristine",
+    image: "https://images.unsplash.com/photo-1524443169398-9aa1ceab67d5?auto=format&fit=crop&w=1200&q=80",
+    highlights: ["Sangla Valley", "Chitkul", "Kalpa", "Sarahan"],
   },
 ];
 
@@ -75,7 +86,7 @@ export default function DestinationsPage() {
         {/* Background Layer with Parallax & Blend */}
         <div className="absolute inset-0 z-0 bg-slate-950">
           <img 
-            src="/hero-spiti.png" 
+            src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1920&q=80" 
             alt="Majestic Spiti landscape" 
             className="w-full h-full object-cover opacity-60 mix-blend-luminosity scale-105 animate-pulse" 
             style={{ animationDuration: '25s' }} 
@@ -170,10 +181,10 @@ export default function DestinationsPage() {
 
                   <div>
                     <Link 
-                      href={`/packages?dest=${dest.slug}`}
+                      href={`/destinations/${dest.slug}`}
                       className="inline-flex items-center gap-3 bg-slate-900 hover:bg-forest-700 text-white px-8 py-4 rounded-2xl font-bold transition-all duration-300 font-outfit text-lg shadow-lg hover:shadow-forest-700/30 hover:-translate-y-1 group"
                     >
-                      View {dest.name} Packages <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+                      View {dest.name} Detail <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
                     </Link>
                   </div>
                 </div>
