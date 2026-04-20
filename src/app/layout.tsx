@@ -17,6 +17,9 @@ const outfit = Outfit({
 export const metadata: Metadata = {
   title: "Tour & Travels | Himachal Packages",
   description: "Best reliable tour packages in Himachal Pradesh.",
+  verification: {
+    google: "8WFTUbPg8wJt_6TLKRHNAKGwRw2gHCgU0HSiqp--pAs",
+  },
 };
 
 export default function RootLayout({
