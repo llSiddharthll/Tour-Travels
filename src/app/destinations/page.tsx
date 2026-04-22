@@ -1,6 +1,4 @@
 import Link from "next/link";
-
-export const dynamic = 'force-dynamic';
 import { 
   RiArrowRightLine, 
   RiMapPinLine, 
@@ -11,8 +9,8 @@ import {
 } from "react-icons/ri";
 import Image from "next/image";
 import { BottomCTA } from "@/components/ui/BottomCTA";
-
 import { getSettings } from "@/lib/db/settings";
+import { getAllDestinations } from "@/lib/db/destinations";
 
 export const dynamic = 'force-dynamic';
 
@@ -25,7 +23,6 @@ export async function generateMetadata() {
   };
 }
 
-import { getAllDestinations } from "@/lib/db/destinations";
 
 export default async function DestinationsPage() {
   const destinationsData = await getAllDestinations();
