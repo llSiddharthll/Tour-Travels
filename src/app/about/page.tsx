@@ -1,4 +1,5 @@
-import { RiShieldCheckLine, RiGroupLine, RiHeartLine, RiMapLine, RiAwardLine, RiGlobalLine, RiMessage3Line } from "react-icons/ri";
+import { RiShieldCheckLine, RiGroupLine, RiHeartLine, RiAwardLine } from "react-icons/ri";
+import { ReactNode } from "react";
 import { BottomCTA } from "@/components/ui/BottomCTA";
 import { getSettings } from "@/lib/db/settings";
 
@@ -20,7 +21,7 @@ export default async function AboutPage() {
         { title: "Sustainable Travel", desc: "A portion of our proceeds goes directly to supporting education in Spiti and Lahaul village schools." }
       ];
 
-  const iconMap: Record<number, any> = {
+  const iconMap: Record<number, ReactNode> = {
     0: <RiGroupLine className="w-10 h-10" />,
     1: <RiShieldCheckLine className="w-10 h-10" />,
     2: <RiHeartLine className="w-10 h-10" />,
@@ -97,7 +98,7 @@ export default async function AboutPage() {
                 )) : (
                   <>
                     <p>
-                      Himvigo started in a small wooden cabin in Manali with a simple belief: the real beauty of the Himalayas isn't in the overcrowded shopping streets, but in the silent valleys and home-cooked meals of remote villages.
+                      Himvigo started in a small wooden cabin in Manali with a simple belief: the real beauty of the Himalayas isn&apos;t in the overcrowded shopping streets, but in the silent valleys and home-cooked meals of remote villages.
                     </p>
                     <p>
                       Today, we are a network of local guides, drivers, and host families who shared this vision. We specialize in offbeat Spiti expeditions and luxury Kinnaur circuits, ensuring every traveler leaves with a piece of the mountains in their heart.
@@ -130,7 +131,7 @@ export default async function AboutPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-5xl mx-auto">
-            {trustUs.map((value: any, i: number) => (
+            {trustUs.map((value: { title: string; desc: string }, i: number) => (
               <div key={i} className="bg-white p-12 rounded-[3rem] shadow-sm hover:shadow-xl transition-all duration-500 group relative overflow-hidden">
                 <div className={`absolute top-0 right-0 w-32 h-32 ${bgMap[i % 3]} opacity-20 rounded-bl-full transform translate-x-8 -translate-y-8 group-hover:scale-150 transition-transform duration-700`} />
                 <div className={`w-20 h-20 rounded-3xl ${bgMap[i % 3]} ${colorMap[i % 3]} flex items-center justify-center mb-8 transform group-hover:-rotate-6 transition-transform`}>
@@ -141,37 +142,6 @@ export default async function AboutPage() {
               </div>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* Meet the Founder */}
-      <section className="py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4">
-           <div className="bg-brand-blue rounded-[4rem] p-12 md:p-20 relative overflow-hidden flex flex-col md:flex-row items-center gap-16">
-              <div className="absolute top-0 right-0 w-[40rem] h-[40rem] bg-brand-orange opacity-10 blur-[120px] rounded-full translate-x-1/2 -translate-y-1/2" />
-              
-              <div className="w-64 h-64 md:w-80 md:h-80 rounded-[3rem] overflow-hidden border-4 border-white/10 shrink-0 shadow-2xl transform hover:rotate-2 transition-transform">
-                <img 
-                  src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=800&q=80" 
-                  alt="Founder" 
-                  className="w-full h-full object-cover"
-                />
-              </div>
-
-              <div className="relative z-10 text-center md:text-left">
-                <RiMessage3Line className="w-12 h-12 text-brand-orange mb-6 mx-auto md:ml-0 opacity-50" />
-                <h3 className="text-3xl md:text-4xl font-outfit font-bold text-white mb-6 leading-tight">
-                  "I started this because I wanted travelers to see the Himachal I grew up in — wild, honest, and welcoming."
-                </h3>
-                <div className="flex flex-col md:flex-row items-center gap-4">
-                  <div className="h-px w-12 bg-brand-orange hidden md:block" />
-                  <div>
-                    <h4 className="text-xl font-bold text-white">Siddharth Sharma</h4>
-                    <p className="text-brand-orange text-sm font-bold uppercase tracking-widest">Founder & Local Explorer</p>
-                  </div>
-                </div>
-              </div>
-           </div>
         </div>
       </section>
 

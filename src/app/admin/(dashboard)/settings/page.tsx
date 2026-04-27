@@ -10,6 +10,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { RiSaveLine, RiGlobalLine, RiLayoutTopLine, RiContactsLine, RiInformationLine, RiCustomerService2Line } from "react-icons/ri";
 import { PageHeader } from "@/components/admin/shared/PageHeader";
+import { FeaturesEditor, FeatureItem } from "@/components/admin/shared/FeaturesEditor";
+
+function parseFeatures(raw?: string): FeatureItem[] {
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? (parsed as FeatureItem[]) : [];
+  } catch {
+    return [];
+  }
+}
 
 export default function SettingsPage() {
   const [settings, setSettings] = useState<Record<string, string>>({});
@@ -154,13 +165,18 @@ export default function SettingsPage() {
           <Card>
             <CardHeader>
               <CardTitle>Why Choose Himvigo (Homepage Features)</CardTitle>
+              <CardDescription>
+                Cards shown in the &ldquo;Why Choose Himvigo&rdquo; section. The
+                first card is the one that opens by default on the homepage.
+              </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label>Features (JSON)</Label>
-                <CardDescription className="mb-2">JSON array of features for the homepage section</CardDescription>
-                <Textarea rows={6} className="font-mono text-xs" value={settings.why_choose_us_json || ""} onChange={(e) => updateSetting("why_choose_us_json", e.target.value)} />
-              </div>
+            <CardContent>
+              <FeaturesEditor
+                value={parseFeatures(settings.why_choose_us_json)}
+                onChange={(next) =>
+                  updateSetting("why_choose_us_json", JSON.stringify(next))
+                }
+              />
             </CardContent>
           </Card>
 

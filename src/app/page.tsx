@@ -5,22 +5,19 @@ import TestimonialSlider from "@/components/home/TestimonialSlider";
 import ActivitiesSlider from "@/components/home/ActivitiesSlider";
 import BlogSection from "@/components/home/BlogSection";
 import HeroSlider from "@/components/home/HeroSlider";
+import { WhyChooseUs, Feature } from "@/components/home/WhyChooseUs";
 import { getFeaturedPackages } from "@/lib/db/packages";
 import { getAllDestinations } from "@/lib/db/destinations";
 import { getLatestBlogs } from "@/lib/db/blogs";
 import { getAllTestimonials } from "@/lib/db/testimonials";
 import { getAllActivities } from "@/lib/db/activities";
 import { BottomCTA } from "@/components/ui/BottomCTA";
-import { 
-  RiShieldCheckLine, 
-  RiGroupLine, 
-  RiStarSFill, 
-  RiArrowRightLine, 
-  RiTrophyLine, 
+import {
+  RiArrowRightLine,
   RiCompass3Line,
   RiCarLine,
-  RiCheckboxCircleLine,
-  RiNavigationLine
+  RiGroupLine,
+  RiNavigationLine,
 } from "react-icons/ri";
 import Link from "next/link";
 import { getSettings } from "@/lib/db/settings";
@@ -51,27 +48,55 @@ export default async function HomePage() {
     getSettings(),
   ]);
 
-  const features = settings.why_choose_us_json 
-    ? JSON.parse(settings.why_choose_us_json)
-    : [
-        {
-          title: "100% Local Experts",
-          desc: "Our guides are born and raised in the Himalayas. They know the hidden trails, the local legends, and the best ways to keep you safe.",
-          image: "/hero-1.png",
-          icon: 'RiGroupLine'
-        },
-        // ... (existing fallback features)
-      ];
-
-  // Helper to map icon names to components
-  const iconMap: Record<string, any> = {
-    RiShieldCheckLine: <RiShieldCheckLine className="w-6 h-6" />,
-    RiGroupLine: <RiGroupLine className="w-6 h-6" />,
-    RiTrophyLine: <RiTrophyLine className="w-6 h-6" />,
-    RiCompass3Line: <RiCompass3Line className="w-6 h-6" />,
-    RiCarLine: <RiCarLine className="w-6 h-6" />,
-    RiCheckboxCircleLine: <RiCheckboxCircleLine className="w-6 h-6" />,
-  };
+  let features: Feature[] = [];
+  if (settings.why_choose_us_json) {
+    try {
+      const parsed = JSON.parse(settings.why_choose_us_json);
+      if (Array.isArray(parsed)) features = parsed;
+    } catch {
+      features = [];
+    }
+  }
+  if (features.length === 0) {
+    features = [
+      {
+        title: "Verified Drivers",
+        desc: "Every driver is background-checked and skilled in navigating Himachal's mountain roads safely.",
+        image: "/hero-1.png",
+        icon: "RiShieldCheckLine",
+      },
+      {
+        title: "100% Local Experts",
+        desc: "Our guides are born and raised in the Himalayas. They know the hidden trails, the local legends, and the best ways to keep you safe.",
+        image: "/hero-2.png",
+        icon: "RiGroupLine",
+      },
+      {
+        title: "Award Winning",
+        desc: "Recognised by Himachal Tourism for service quality and safety standards.",
+        image: "/hero-3.png",
+        icon: "RiTrophyLine",
+      },
+      {
+        title: "Curated Itineraries",
+        desc: "Hand-built journeys that balance adventure, culture and downtime.",
+        image: "/hero-4.png",
+        icon: "RiCompass3Line",
+      },
+      {
+        title: "Comfortable Vehicles",
+        desc: "Modern fleet maintained for long mountain drives with experienced chauffeurs.",
+        image: "/hero-5.png",
+        icon: "RiCarLine",
+      },
+      {
+        title: "Flexible Booking",
+        desc: "Easy rescheduling and transparent pricing — pay only for what you use.",
+        image: "/hero-6.png",
+        icon: "RiCheckboxCircleLine",
+      },
+    ];
+  }
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -245,51 +270,21 @@ export default async function HomePage() {
       {/* Why Choose Us - Enhanced Responsive Grid */}
       <section className="py-24 bg-slate-50 border-y border-slate-100 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 md:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-outfit font-bold text-brand-blue leading-tight">Why Choose Himvigo</h2>
-            <div className="h-1.5 w-24 bg-brand-orange mt-6 rounded-full mx-auto" />
-            <p className="mt-6 text-slate-500 text-lg max-w-2xl mx-auto">Experience the difference of traveling with true Himalayan experts.</p>
+          <div className="mb-12 max-w-2xl">
+            <h2 className="text-3xl md:text-5xl font-outfit font-bold text-brand-blue mb-6 leading-tight">Why Choose Himvigo</h2>
+            <p className="text-slate-500 text-lg font-inter">Experience the difference of traveling with true Himalayan experts.</p>
           </div>
-          
-          <div className="flex flex-col md:flex-row w-full h-auto md:h-[500px] gap-6 md:gap-4">
-             {features.map((f: any, i: number) => (
-               <div key={i} className="group relative flex-[1] md:hover:flex-[3] transition-all duration-700 ease-in-out h-[300px] md:h-full overflow-hidden rounded-3xl cursor-pointer shadow-lg border border-slate-200">
-                  <img src={f.image} alt={f.title} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-brand-blue flex flex-col justify-end p-6 md:p-8 transition-all duration-500" style={{ background: "linear-gradient(to top, rgba(10,60,93,0.95) 0%, rgba(10,60,93,0.4) 50%, rgba(10,60,93,0.1) 100%)" }}>
-                     <div className="flex items-center gap-4 mb-4">
-                        <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center text-brand-orange shrink-0 border border-white/10 shadow-xl group-hover:bg-brand-orange group-hover:text-white group-hover:border-brand-orange transition-colors duration-500">
-                           {iconMap[f.icon] || <RiCompass3Line className="w-6 h-6" />}
-                        </div>
-                        <h3 className="text-2xl font-bold text-white font-outfit whitespace-nowrap overflow-hidden transition-all duration-500 md:w-0 md:opacity-0 group-hover:w-auto group-hover:opacity-100">
-                          {f.title}
-                        </h3>
-                        {/* Mobile & Tablet Title (visible when not hovered on desktop) */}
-                        <h3 className="text-xl font-bold text-white font-outfit md:hidden">
-                          {f.title}
-                        </h3>
-                     </div>
-                     <div className="overflow-hidden transition-all duration-500 md:max-h-0 md:opacity-0 group-hover:max-h-40 group-hover:opacity-100 group-hover:mt-2">
-                       <p className="text-slate-100 font-medium leading-relaxed font-inter">
-                         {f.desc}
-                       </p>
-                     </div>
-                     {/* Mobile Description (always visible on mobile) */}
-                     <p className="text-slate-200 font-medium leading-relaxed font-inter text-sm md:hidden mt-2">
-                       {f.desc}
-                     </p>
-                  </div>
-               </div>
-             ))}
-          </div>
+
+          <WhyChooseUs features={features} />
         </div>
       </section>
 
       {/* Activities Section */}
       <section className="py-28 bg-slate-50 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 md:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-outfit font-bold text-brand-blue leading-tight">Adventures Await</h2>
-            <div className="h-1.5 w-24 bg-brand-orange mt-6 rounded-full mx-auto" />
+          <div className="mb-12 max-w-2xl">
+            <h2 className="text-3xl md:text-5xl font-outfit font-bold text-brand-blue mb-6 leading-tight">Adventures Await</h2>
+            <p className="text-slate-500 text-lg font-inter">Curated experiences to make your Himalayan trip unforgettable.</p>
           </div>
           <ActivitiesSlider activities={activities} />
         </div>
