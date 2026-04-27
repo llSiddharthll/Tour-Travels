@@ -1,15 +1,34 @@
 "use client";
 
-import { useRef, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
-import { ArrowLeft, ArrowRight, Quote, Star } from "lucide-react";
+import {
+  RiArrowLeftLine,
+  RiArrowRightLine,
+  RiDoubleQuotesL,
+  RiStarSFill,
+  RiHeart3Fill,
+} from "react-icons/ri";
 
 import { TestimonialData } from "@/lib/db/testimonials";
 
-export default function TestimonialSlider({ testimonials = [] }: { testimonials: TestimonialData[] }) {
+const AVATAR_GRADIENTS = [
+  "from-amber-400 to-orange-500",
+  "from-emerald-400 to-teal-500",
+  "from-blue-400 to-indigo-500",
+  "from-rose-400 to-pink-500",
+  "from-violet-400 to-purple-500",
+  "from-cyan-400 to-sky-500",
+];
+
+export default function TestimonialSlider({
+  testimonials = [],
+}: {
+  testimonials: TestimonialData[];
+}) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -19,71 +38,122 @@ export default function TestimonialSlider({ testimonials = [] }: { testimonials:
 
   if (!mounted) return null;
 
-  // Duplicate items if too few to allow smooth infinite loop without warnings
-  const slideItems = testimonials.length > 0 && testimonials.length < 6 
-    ? [...testimonials, ...testimonials, ...testimonials].slice(0, 8) 
-    : testimonials;
+  // Duplicate items if too few to keep loop smooth
+  const slideItems =
+    testimonials.length > 0 && testimonials.length < 6
+      ? [...testimonials, ...testimonials, ...testimonials].slice(0, 9)
+      : testimonials;
+
+  if (slideItems.length === 0) return null;
 
   return (
     <div className="relative w-full">
-      <div className="flex justify-between items-end mb-16">
-        <div>
-          <h2 className="text-3xl md:text-5xl font-outfit font-bold text-slate-900">Traveler Stories</h2>
-          <div className="h-1.5 w-24 bg-amber-500 mt-6 rounded-full" />
+      {/* Editorial header */}
+      <div className="mb-12 grid grid-cols-1 md:grid-cols-12 gap-6 items-end">
+        <div className="md:col-span-8">
+          <div className="inline-flex items-center gap-2 rounded-full bg-amber-500/10 px-3 py-1 mb-4">
+            <RiHeart3Fill className="h-3.5 w-3.5 text-amber-600" />
+            <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-amber-700">
+              Traveller Stories
+            </span>
+          </div>
+          <h2 className="text-3xl md:text-5xl font-outfit font-bold text-brand-blue mb-4 leading-tight">
+            Loved by travellers across<br />
+            <span className="text-brand-orange">the Himalayas.</span>
+          </h2>
+          <p className="text-slate-500 text-lg font-inter max-w-xl">
+            Real words from real travellers — every story below is from a
+            verified booking with Himvigo.
+          </p>
         </div>
-        
+
         {/* Custom Nav Buttons */}
-        <div className="hidden md:flex items-center gap-3">
-          <button className="custom-test-prev p-3 rounded-full border border-slate-200 hover:bg-slate-50 text-slate-600 transition-colors cursor-pointer group">
-            <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+        <div className="md:col-span-4 flex md:justify-end items-center gap-3">
+          <button
+            type="button"
+            aria-label="Previous testimonial"
+            className="custom-test-prev group inline-flex h-12 w-12 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm transition-all hover:border-brand-orange hover:text-brand-orange hover:shadow-md"
+          >
+            <RiArrowLeftLine className="h-5 w-5 transition-transform group-hover:-translate-x-0.5" />
           </button>
-          <button className="custom-test-next p-3 rounded-full bg-forest-600 hover:bg-forest-700 text-white transition-colors cursor-pointer group">
-            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+          <button
+            type="button"
+            aria-label="Next testimonial"
+            className="custom-test-next group inline-flex h-12 w-12 items-center justify-center rounded-full bg-brand-orange text-white shadow-md transition-all hover:bg-brand-orange/90 hover:shadow-lg"
+          >
+            <RiArrowRightLine className="h-5 w-5 transition-transform group-hover:translate-x-0.5" />
           </button>
         </div>
       </div>
 
       <Swiper
         modules={[Navigation, Autoplay]}
-        spaceBetween={32}
+        spaceBetween={24}
         slidesPerView={1}
         breakpoints={{
-          768: { slidesPerView: 2 },
-          1024: { slidesPerView: 3 }
+          640: { slidesPerView: 2 },
+          1024: { slidesPerView: 3 },
         }}
         navigation={{
           prevEl: ".custom-test-prev",
           nextEl: ".custom-test-next",
         }}
-        autoplay={{ delay: 5000, disableOnInteraction: true }}
-        loop={true}
-        className="pb-16"
+        autoplay={{ delay: 6000, disableOnInteraction: true }}
+        loop={slideItems.length > 3}
+        className="!pb-2"
       >
-        {slideItems.map((t, i) => (
-          <SwiperSlide key={i} className="h-auto">
-            <div className="bg-white p-8 md:p-10 rounded-3xl border border-slate-100 shadow-[0_8px_30px_-4px_rgba(0,0,0,0.05)] hover:-translate-y-2 hover:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.1)] transition-all duration-500 relative flex flex-col h-full cursor-grab active:cursor-grabbing">
-              <div>
-                <Quote className="absolute top-8 right-8 w-12 h-12 text-slate-100" />
-                <div className="flex text-amber-500 mb-6">
-                  <Star className="w-4 h-4 fill-current" /><Star className="w-4 h-4 fill-current" /><Star className="w-4 h-4 fill-current" /><Star className="w-4 h-4 fill-current" /><Star className="w-4 h-4 fill-current" />
+        {slideItems.map((t, i) => {
+          const gradient = AVATAR_GRADIENTS[i % AVATAR_GRADIENTS.length];
+          return (
+            <SwiperSlide key={i} className="!h-auto">
+              <article className="group relative flex h-[340px] flex-col overflow-hidden rounded-3xl bg-white p-7 ring-1 ring-slate-200/70 shadow-sm transition-all duration-500 hover:-translate-y-1 hover:shadow-xl hover:ring-brand-orange/30">
+                {/* Big quote glyph */}
+                <RiDoubleQuotesL className="absolute -top-2 -right-2 h-24 w-24 text-slate-100 group-hover:text-brand-orange/20 transition-colors duration-500" />
+
+                {/* Stars */}
+                <div className="flex gap-0.5 text-amber-500 mb-4 relative">
+                  {Array.from({ length: 5 }).map((_, idx) => (
+                    <RiStarSFill
+                      key={idx}
+                      className={`h-3.5 w-3.5 ${
+                        idx < t.rating ? "" : "text-slate-200"
+                      }`}
+                    />
+                  ))}
                 </div>
-                <p className="text-slate-600 font-inter text-base md:text-lg italic leading-relaxed mb-8 z-10 relative">&quot;{t.text}&quot;</p>
-              </div>
-              <div className="flex items-center gap-4 pt-6 border-t border-slate-50 mt-auto">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-forest-500 to-forest-700 flex items-center justify-center text-white font-bold text-lg shadow-lg flex-shrink-0">{t.name[0]}</div>
-                <div>
-                  <h4 className="font-bold text-slate-900 font-outfit text-base">{t.name}</h4>
-                  <span className="text-[10px] md:text-xs text-amber-600 font-bold tracking-wide uppercase break-words line-clamp-1">{t.packageName}</span>
+
+                {/* Quote — fixed height region with line clamp keeps cards equal */}
+                <p className="relative text-slate-700 font-inter leading-relaxed text-[15px] line-clamp-6 flex-1">
+                  &ldquo;{t.text}&rdquo;
+                </p>
+
+                {/* Footer */}
+                <div className="relative mt-5 flex items-center gap-3 pt-4 border-t border-slate-100">
+                  <div
+                    className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${gradient} text-white font-bold shadow-md ring-2 ring-white`}
+                  >
+                    {t.name?.[0]?.toUpperCase() ?? "?"}
+                  </div>
+                  <div className="min-w-0">
+                    <h4 className="font-bold text-slate-900 font-outfit text-sm leading-tight truncate">
+                      {t.name}
+                    </h4>
+                    <span className="text-[10px] font-bold tracking-wider uppercase text-brand-orange line-clamp-1">
+                      {t.packageName}
+                    </span>
+                  </div>
                 </div>
-              </div>
-            </div>
-          </SwiperSlide>
-        ))}
+              </article>
+            </SwiperSlide>
+          );
+        })}
       </Swiper>
-      
-      {/* Mobile nav indicator */}
-      <div className="flex md:hidden justify-center items-center mt-2 w-full text-slate-400 text-xs font-bold tracking-widest uppercase">
-        <ArrowLeft className="w-3 h-3 mr-2" /> Swipe to read more <ArrowRight className="w-3 h-3 ml-2" />
+
+      {/* Mobile swipe hint */}
+      <div className="mt-4 flex md:hidden justify-center items-center gap-2 text-slate-400 text-[11px] font-bold tracking-widest uppercase">
+        <RiArrowLeftLine className="h-3 w-3" />
+        Swipe to read more
+        <RiArrowRightLine className="h-3 w-3" />
       </div>
     </div>
   );
