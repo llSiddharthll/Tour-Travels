@@ -5,8 +5,13 @@ import { Navbar } from "@/components/ui/Navbar";
 import { Footer } from "@/components/ui/Footer";
 import Script from "next/script";
 import { cn } from "@/lib/utils";
+import { getSettings } from "@/lib/db/settings";
+import { getInternalPages } from "@/lib/db/pages";
+import { WhatsAppWidget } from "@/components/ui/WhatsAppWidget";
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
+export const dynamic = "force-dynamic";
+
+const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
 const inter = Inter({
   variable: "--font-inter",
@@ -18,18 +23,23 @@ const outfit = Outfit({
   subsets: ["latin"],
 });
 
-import { getSettings } from "@/lib/db/settings";
-
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSettings();
   const siteName = settings.site_name || "Himvigo Tours";
-  const homeTitle = settings.seo_home_title || `${siteName} | Premium Travel & Spiti Valley Packages`;
-  const homeDesc = settings.seo_home_description || "Experience the magic of Himachal Pradesh with Himvigo. Premium, offbeat Spiti Valley tours, trekking expeditions, and reliable Chandigarh to Manali cab services.";
-  const homeKeywords = settings.seo_home_keywords || "Himachal Pradesh Tours, Spiti Valley Packages, Manali Tour, Kasol Trek, Chandigarh to Manali Cabs, Premium Travel Himachal";
+  const homeTitle =
+    settings.seo_home_title ||
+    `${siteName} | Premium Travel & Spiti Valley Packages`;
+  const homeDesc =
+    settings.seo_home_description ||
+    "Experience the magic of Himachal Pradesh with Himvigo. Premium, offbeat Spiti Valley tours, trekking expeditions, and reliable Chandigarh to Manali cab services.";
+  const homeKeywords =
+    settings.seo_home_keywords ||
+    "Himachal Pradesh Tours, Spiti Valley Packages, Manali Tour, Kasol Trek, Chandigarh to Manali Cabs, Premium Travel Himachal";
 
-  const keywordsList = typeof homeKeywords === 'string' 
-    ? homeKeywords.split(",").map(k => k.trim()) 
-    : ["Himvigo", "Himachal", "Tours"];
+  const keywordsList =
+    typeof homeKeywords === "string"
+      ? homeKeywords.split(",").map((k) => k.trim())
+      : ["Himvigo", "Himachal", "Tours"];
 
   return {
     title: {
@@ -46,13 +56,8 @@ export async function generateMetadata(): Promise<Metadata> {
       canonical: "/",
     },
     icons: {
-      icon: [
-        { url: "/favicon.png" },
-        { url: "/icon.svg", type: "image/svg+xml" },
-      ],
-      apple: [
-        { url: "/favicon.png" },
-      ],
+      icon: [{ url: "/favicon.png" }, { url: "/icon.svg", type: "image/svg+xml" }],
+      apple: [{ url: "/favicon.png" }],
       other: [
         {
           rel: "apple-touch-icon-precomposed",
@@ -100,27 +105,34 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-import { WhatsAppWidget } from "@/components/ui/WhatsAppWidget";
-
 export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const settings = await getSettings();
+  const [settings, internalPages] = await Promise.all([
+    getSettings(),
+    getInternalPages(),
+  ]);
 
   return (
     <html
       lang="en"
-      className={cn("h-full", "antialiased", "scroll-smooth", inter.variable, outfit.variable, "font-sans", geist.variable)}
+      className={cn(
+        "h-full",
+        "antialiased",
+        "scroll-smooth",
+        inter.variable,
+        outfit.variable,
+        "font-sans",
+        geist.variable,
+      )}
     >
       <body className="min-h-full flex flex-col font-inter">
-        <Navbar />
+        <Navbar internalPages={internalPages} />
         {children}
         <Footer settings={settings} />
-        <WhatsAppWidget 
-          phoneNumber={settings.site_whatsapp} 
-        />
+        <WhatsAppWidget phoneNumber={settings.site_whatsapp} />
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-R18M7Q4X5Q"
           strategy="afterInteractive"
@@ -132,6 +144,7 @@ export default async function RootLayout({
             gtag('js', new Date());
 
             gtag('config', 'G-R18M7Q4X5Q');
+            gtag('config', 'GT-T9B8VSPQ');
           `}
         </Script>
       </body>

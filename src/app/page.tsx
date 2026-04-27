@@ -33,6 +33,9 @@ export async function generateMetadata() {
     title: settings.seo_home_title || "Best Himachal Tour Packages & Spiti Valley Tours",
     description: settings.seo_home_description || "Experience the magic of Himachal Pradesh with Himvigo.",
     keywords: settings.seo_home_keywords || "himachal tours, spiti valley",
+    alternates: {
+      canonical: "/",
+    },
   };
 }
 

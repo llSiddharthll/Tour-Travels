@@ -23,8 +23,21 @@ export default async function BlogDetailPage({ params }: Props) {
   const readTimeMinutes = Math.max(1, Math.ceil(wordCount / 200));
   const readTime = `${readTimeMinutes} min read`;
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": blog.title,
+    "image": [blog.coverImage],
+    "datePublished": blog.publishedAt,
+    "author": [{
+      "@type": "Person",
+      "name": blog.author
+    }]
+  };
+
   return (
     <main className="flex flex-col min-h-screen bg-white">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       {/* Hero */}
       <section className="relative h-[65vh] min-h-[500px] flex items-end pb-16 bg-slate-900 overflow-hidden">
         <div className="absolute inset-0">
@@ -139,6 +152,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title,
     description,
     keywords: blog.metaKeywords || blog.tags?.join(', '),
+    alternates: {
+      canonical: `/blog/${slug}`,
+    },
     openGraph: {
       title,
       description,

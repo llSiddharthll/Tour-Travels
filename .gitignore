@@ -40,5 +40,55 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# prisma
 /src/generated/prisma
+
+# local backups and data
+/backups/
 *.zip
+*.rar
+*.7z
+*.sql
+*.json_backup
+
+# logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+.project
+.classpath
+.settings/
+.factorypath
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# temp and misc
+tmp/
+temp/
+.temp/
+*.txt
+!README.md
+!PRD.md
+!CLAUDE.md
+!AGENTS.md
+!requirements.txt
+
+# Antigravity/Gemini specific
+.gemini/
+.antigravity/

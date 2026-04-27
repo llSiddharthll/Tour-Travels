@@ -6,7 +6,13 @@ import { useState, useEffect } from "react";
 import { Menu, X, MountainSnow } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-export const Navbar = () => {
+interface InternalPage {
+  title: string;
+  slug: string;
+  type: string;
+}
+
+export const Navbar = ({ internalPages = [] }: { internalPages?: InternalPage[] }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
@@ -23,12 +29,20 @@ export const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const packageDropdown = internalPages
+    .filter(p => p.type === "package")
+    .map(p => ({ name: p.title, href: `/packages/${p.slug}` }));
+
+  const destinationDropdown = internalPages
+    .filter(p => p.type === "destination")
+    .map(p => ({ name: p.title, href: `/destinations/${p.slug}` }));
+
   const navLinks = [
     { name: "Home", href: "/" },
     { 
       name: "Packages", 
       href: "/packages",
-      dropdown: [
+      dropdown: packageDropdown.length > 0 ? packageDropdown : [
         { name: "Honeymoon Packages", href: "/packages/honeymoon" },
         { name: "Family Packages", href: "/packages/family" },
         { name: "Adventure Tours", href: "/packages/adventure" },
@@ -38,7 +52,7 @@ export const Navbar = () => {
     { 
       name: "Destinations", 
       href: "/destinations",
-      dropdown: [
+      dropdown: destinationDropdown.length > 0 ? destinationDropdown : [
         { name: "Shimla", href: "/destinations/shimla" },
         { name: "Manali", href: "/destinations/manali" },
         { name: "Dharamshala", href: "/destinations/dharamshala" },

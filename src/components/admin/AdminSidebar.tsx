@@ -35,6 +35,7 @@ const navItems = [
   { title: "Packages", href: "/admin/packages", icon: RiSuitcaseLine },
   { title: "Blogs", href: "/admin/blogs", icon: RiArticleLine },
   { title: "Destinations", href: "/admin/destinations", icon: RiMapPinLine },
+  { title: "Nav Groups", href: "/admin/nav-groups", icon: RiLandscapeLine },
   { title: "Testimonials", href: "/admin/testimonials", icon: RiStarLine },
   { title: "Activities", href: "/admin/activities", icon: RiRunLine },
   { title: "Cab Services", href: "/admin/cab", icon: RiTaxiLine },
@@ -73,7 +74,7 @@ export function AdminSidebar() {
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {navItems.slice(0, 7).map((item) => (
+              {navItems.slice(0, 8).map((item) => (
                 <SidebarMenuItem key={item.href}>
                   <SidebarMenuButton
                     asChild
@@ -98,7 +99,7 @@ export function AdminSidebar() {
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {navItems.slice(7).map((item) => (
+              {navItems.slice(8).map((item) => (
                 <SidebarMenuItem key={item.href}>
                   <SidebarMenuButton
                     asChild

@@ -13,6 +13,9 @@ export async function generateMetadata() {
     title: settings.seo_blog_title || "Travel Blog | Himvigo Tours",
     description: settings.seo_blog_description || "Read the latest stories and guides from the Himalayas.",
     keywords: settings.seo_blog_keywords || "travel blog, himachal",
+    alternates: {
+      canonical: "/blog",
+    },
   };
 }
 

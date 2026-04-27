@@ -16,6 +16,9 @@ export async function generateMetadata() {
     title: settings.seo_packages_title || "Tour Packages | Himvigo Tours",
     description: settings.seo_packages_description || "Browse our premium selection of Himachal Pradesh itineraries.",
     keywords: settings.seo_packages_keywords || "tour packages, himachal",
+    alternates: {
+      canonical: "/packages",
+    },
   };
 }
 

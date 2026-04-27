@@ -54,7 +54,6 @@ const emptyPackage: PackageData = {
   isFeatured: false, isActive: true, metaTitle: "", metaDescription: "", metaKeywords: "",
 };
 
-const categoryOptions = ["adventure", "family", "honeymoon", "spiritual", "offbeat", "culture", "luxury", "budget"];
 
 export default function PackagesPage() {
   const [packages, setPackages] = useState<PackageData[]>([]);
@@ -64,7 +63,20 @@ export default function PackagesPage() {
   const [form, setForm] = useState<PackageData>(emptyPackage);
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => { fetchPackages(); }, []);
+  useEffect(() => { 
+    fetchPackages();
+    fetchCategories();
+  }, []);
+
+  const [packageGroups, setPackageGroups] = useState<{title: string, slug: string}[]>([]);
+
+  async function fetchCategories() {
+    try {
+      const res = await fetch("/api/admin/internal-pages");
+      const data = await res.json();
+      setPackageGroups(data.filter((p: any) => p.type === "package"));
+    } catch {}
+  }
 
   async function fetchPackages() {
     setLoading(true);
@@ -288,16 +300,16 @@ export default function PackagesPage() {
 
             {/* Categories */}
             <div className="space-y-2">
-              <Label>Categories</Label>
+              <Label>Categories (Nav Groups)</Label>
               <div className="flex flex-wrap gap-2">
-                {categoryOptions.map((cat) => (
+                {packageGroups.map((group) => (
                   <Badge
-                    key={cat}
-                    variant={form.categories.includes(cat) ? "default" : "outline"}
+                    key={group.slug}
+                    variant={form.categories.includes(group.slug) ? "default" : "outline"}
                     className="cursor-pointer capitalize"
-                    onClick={() => toggleCategory(cat)}
+                    onClick={() => toggleCategory(group.slug)}
                   >
-                    {cat}
+                    {group.title}
                   </Badge>
                 ))}
               </div>

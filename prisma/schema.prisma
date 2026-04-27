@@ -65,6 +65,7 @@ model Destination {
   vibe            String
   image           String
   highlights      String[]
+  categories      String[]
   isActive        Boolean  @default(true)
   sortOrder       Int      @default(0)
   metaTitle       String?
@@ -172,4 +173,20 @@ model AdminUser {
   createdAt DateTime @default(now())
 
   @@map("admin_users")
+}
+
+model InternalPage {
+  id              String   @id @default(cuid())
+  title           String
+  slug            String   @unique
+  description     String?
+  type            String   // "package" or "destination"
+  isActive        Boolean  @default(true)
+  sortOrder       Int      @default(0)
+  metaTitle       String?
+  metaDescription String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("internal_pages")
 }

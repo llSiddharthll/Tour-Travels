@@ -3,6 +3,8 @@ import { PackageCard } from "@/components/ui/PackageCard";
 import { BottomCTA } from "@/components/ui/BottomCTA";
 import { getAllPackages } from "@/lib/db/packages";
 import { getDestinationBySlug, getAllDestinations } from "@/lib/db/destinations";
+import { getInternalPageBySlug } from "@/lib/db/pages";
+import DestinationGroupLandingPage from "@/components/destinations/DestinationGroupLandingPage";
 import { MapPin, Sun, Snowflake, Compass, Clock, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { Metadata } from "next";
@@ -18,6 +20,23 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
+
+  // Check for dynamic internal pages first
+  const internalPage = await getInternalPageBySlug(slug);
+  if (internalPage && internalPage.type === "destination") {
+    const title = internalPage.metaTitle || internalPage.title;
+    const description = internalPage.metaDescription || internalPage.description || `Explore our best ${internalPage.title} and plan your dream trip with Himvigo.`;
+    return {
+      title,
+      description,
+      alternates: {
+        canonical: `/destinations/${slug}`,
+      },
+      openGraph: { title, description },
+      twitter: { title, description }
+    };
+  }
+
   const destination = await getDestinationBySlug(slug);
 
   if (!destination) return {};
@@ -29,6 +48,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     title,
     description,
     keywords: destination.metaKeywords,
+    alternates: {
+      canonical: `/destinations/${slug}`,
+    },
     openGraph: {
       title,
       description,
@@ -44,6 +66,24 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function DestinationDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
+
+  // Check for dynamic internal pages first
+  const internalPage = await getInternalPageBySlug(slug);
+  if (internalPage && internalPage.type === "destination") {
+    const allDestinations = await getAllDestinations();
+    // Filter destinations that have this category slug or title in their categories array
+    const groupDestinations = allDestinations.filter(d => 
+      (d.categories || []).map(c => c.toLowerCase()).includes(slug.toLowerCase()) ||
+      (d.categories || []).some(c => c.toLowerCase() === internalPage.title.toLowerCase())
+    );
+    
+    return <DestinationGroupLandingPage 
+      groupName={internalPage.title} 
+      destinations={groupDestinations} 
+      description={internalPage.description || undefined} 
+    />;
+  }
+
   const destination = await getDestinationBySlug(slug);
 
   if (!destination) {

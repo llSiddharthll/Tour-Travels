@@ -1,4 +1,5 @@
 import { getPackageBySlug, getAllPackages } from "@/lib/db/packages";
+import { getInternalPageBySlug } from "@/lib/db/pages";
 import { notFound } from "next/navigation";
 import PackageDetailClient from "@/components/packages/PackageDetailClient";
 import CategoryLandingPage from "@/components/packages/CategoryLandingPage";
@@ -31,12 +32,31 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const lowerSlug = slug.toLowerCase();
 
+  // Check for dynamic internal pages first
+  const internalPage = await getInternalPageBySlug(slug);
+  if (internalPage && internalPage.type === "package") {
+    const title = internalPage.metaTitle || internalPage.title;
+    const description = internalPage.metaDescription || internalPage.description || `Explore our best ${internalPage.title} and plan your dream trip with Himvigo.`;
+    return {
+      title,
+      description,
+      alternates: {
+        canonical: `/packages/${slug}`,
+      },
+      openGraph: { title, description },
+      twitter: { title, description }
+    };
+  }
+
   if (CATEGORIES.includes(lowerSlug)) {
     const title = `${lowerSlug.charAt(0).toUpperCase() + lowerSlug.slice(1)} Tour Packages`;
     const description = `Explore our best ${lowerSlug} tour packages and plan your dream trip with Himvigo.`;
     return {
       title,
       description,
+      alternates: {
+        canonical: `/packages/${slug}`,
+      },
       openGraph: { title, description },
       twitter: { title, description }
     };
@@ -52,6 +72,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title,
     description,
     keywords: pkg.metaKeywords || pkg.categories?.join(', '),
+    alternates: {
+      canonical: `/packages/${slug}`,
+    },
     openGraph: {
       title,
       description,
@@ -70,9 +93,21 @@ export default async function PackageDetails({ params }: Props) {
   const lowerSlug = slug.toLowerCase();
   
   let content;
+  let pkg = null;
 
-  // Detect if this is a category page request
-  if (CATEGORIES.includes(lowerSlug)) {
+  // Check for dynamic internal pages first
+  const internalPage = await getInternalPageBySlug(slug);
+  if (internalPage && internalPage.type === "package") {
+    const allPackages = await getAllPackages();
+    // Filter packages that have this category slug or title in their categories array
+    const categoryPackages = allPackages.filter(p => 
+      (p.categories || []).map(c => c.toLowerCase()).includes(lowerSlug) ||
+      (p.categories || []).some(c => c.toLowerCase() === internalPage.title.toLowerCase())
+    );
+    
+    content = <CategoryLandingPage category={internalPage.title} packages={categoryPackages} />;
+  } else if (CATEGORIES.includes(lowerSlug)) {
+    // Detect if this is a hardcoded category page request
     const allPackages = await getAllPackages();
     const categoryPackages = allPackages.filter(p => 
       (p.categories || []).map(c => c.toLowerCase()).includes(lowerSlug)
@@ -81,7 +116,7 @@ export default async function PackageDetails({ params }: Props) {
     content = <CategoryLandingPage category={slug} packages={categoryPackages} />;
   } else {
     // Otherwise, it's a specific package request
-    const pkg = await getPackageBySlug(slug);
+    pkg = await getPackageBySlug(slug);
 
     if (!pkg) {
       notFound();
@@ -90,8 +125,23 @@ export default async function PackageDetails({ params }: Props) {
     content = <PackageDetailClient pkg={pkg} />;
   }
 
+  const jsonLd = !CATEGORIES.includes(lowerSlug) && pkg ? {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": pkg.title,
+    "image": pkg.imageUrls,
+    "description": pkg.description,
+    "offers": {
+      "@type": "Offer",
+      "price": pkg.pricePerPerson,
+      "priceCurrency": "INR",
+      "availability": "https://schema.org/InStock"
+    }
+  } : null;
+
   return (
     <>
+      {jsonLd && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />}
       {content}
       <BottomCTA />
     </>

@@ -20,6 +20,9 @@ export async function generateMetadata() {
     title: settings.seo_destinations_title || "Explore Destinations | Himvigo Tours",
     description: settings.seo_destinations_description || "Explore the magical regions of Himachal Pradesh.",
     keywords: settings.seo_destinations_keywords || "destinations, spiti, manali",
+    alternates: {
+      canonical: "/destinations",
+    },
   };
 }
 

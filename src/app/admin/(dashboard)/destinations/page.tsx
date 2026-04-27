@@ -20,13 +20,13 @@ import { RiAddLine, RiEditLine, RiDeleteBinLine, RiAddCircleLine, RiCloseLine } 
 interface DestData {
   id?: string; slug: string; name: string; tagline: string; description: string;
   bestTime: string; altitude: string; vibe: string; image: string;
-  highlights: string[]; isActive: boolean; sortOrder: number;
+  highlights: string[]; categories: string[]; isActive: boolean; sortOrder: number;
   metaTitle: string; metaDescription: string; metaKeywords: string;
 }
 
 const emptyDest: DestData = {
   slug: "", name: "", tagline: "", description: "", bestTime: "", altitude: "", vibe: "",
-  image: "", highlights: [""], isActive: true, sortOrder: 0,
+  image: "", highlights: [""], categories: [], isActive: true, sortOrder: 0,
   metaTitle: "", metaDescription: "", metaKeywords: "",
 };
 
@@ -38,7 +38,20 @@ export default function DestinationsPage() {
   const [form, setForm] = useState<DestData>(emptyDest);
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => { fetchItems(); }, []);
+  useEffect(() => { 
+    fetchItems();
+    fetchCategories();
+  }, []);
+
+  const [destGroups, setDestGroups] = useState<{title: string, slug: string}[]>([]);
+
+  async function fetchCategories() {
+    try {
+      const res = await fetch("/api/admin/internal-pages");
+      const data = await res.json();
+      setDestGroups(data.filter((p: any) => p.type === "destination"));
+    } catch {}
+  }
 
   async function fetchItems() {
     setLoading(true);
@@ -49,7 +62,7 @@ export default function DestinationsPage() {
 
   function openCreate() { setForm(emptyDest); setDialogOpen(true); }
   function openEdit(item: DestData) {
-    setForm({ ...item, highlights: item.highlights?.length ? item.highlights : [""], metaTitle: item.metaTitle || "", metaDescription: item.metaDescription || "", metaKeywords: item.metaKeywords || "" });
+    setForm({ ...item, highlights: item.highlights?.length ? item.highlights : [""], categories: item.categories || [], metaTitle: item.metaTitle || "", metaDescription: item.metaDescription || "", metaKeywords: item.metaKeywords || "" });
     setDialogOpen(true);
   }
 
@@ -120,6 +133,28 @@ export default function DestinationsPage() {
             </div>
             <div className="space-y-2"><Label>Description *</Label><Textarea value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} rows={4} /></div>
             <div className="space-y-2"><Label>Image</Label><ImageUpload value={form.image} onChange={(url) => setForm((f) => ({ ...f, image: url }))} folder="destinations" /></div>
+
+            <div className="space-y-3">
+              <Label>Categories (Groups)</Label>
+              <div className="flex flex-wrap gap-2">
+                {destGroups.map((group) => (
+                  <Badge 
+                    key={group.slug} 
+                    variant={form.categories?.includes(group.slug) ? "default" : "outline"}
+                    className="cursor-pointer"
+                    onClick={() => {
+                      const cats = form.categories || [];
+                      setForm(f => ({
+                        ...f,
+                        categories: cats.includes(group.slug) ? cats.filter(c => c !== group.slug) : [...cats, group.slug]
+                      }));
+                    }}
+                  >
+                    {group.title}
+                  </Badge>
+                ))}
+              </div>
+            </div>
 
             <div className="space-y-3">
               <div className="flex items-center justify-between"><Label>Highlights</Label><Button type="button" variant="outline" size="sm" onClick={() => setForm((f) => ({ ...f, highlights: [...f.highlights, ""] }))} className="gap-1"><RiAddCircleLine className="w-4 h-4" /> Add</Button></div>

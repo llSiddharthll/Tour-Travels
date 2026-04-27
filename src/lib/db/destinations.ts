@@ -11,6 +11,7 @@ export interface DestinationData {
   vibe: string;
   image: string;
   highlights: string[];
+  categories: string[];
   sortOrder: number;
   metaTitle?: string;
   metaDescription?: string;
