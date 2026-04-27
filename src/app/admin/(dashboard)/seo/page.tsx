@@ -7,7 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { RiSearchLine, RiSaveLine } from "react-icons/ri";
+import { RiSaveLine } from "react-icons/ri";
+import { PageHeader } from "@/components/admin/shared/PageHeader";
 
 interface PageSEO { slug: string; label: string; title: string; description: string; keywords: string; }
 
@@ -40,10 +41,16 @@ export default function SEOPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div><h1 className="text-3xl font-bold tracking-tight flex items-center gap-2"><RiSearchLine className="w-8 h-8" /> SEO Settings</h1><p className="text-muted-foreground mt-1">Manage meta tags for each page</p></div>
-        <Button onClick={handleSave} disabled={saving} className="gap-2"><RiSaveLine className="w-4 h-4" /> {saving ? "Saving..." : "Save All"}</Button>
-      </div>
+      <PageHeader
+        title="SEO Settings"
+        description="Manage meta tags for each top-level page."
+        actions={
+          <Button onClick={handleSave} disabled={saving} className="gap-2">
+            <RiSaveLine className="h-4 w-4" />
+            {saving ? "Saving..." : "Save all"}
+          </Button>
+        }
+      />
       <div className="space-y-4">
         {pages.map((page) => (
           <Card key={page.slug}>

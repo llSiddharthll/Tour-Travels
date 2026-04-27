@@ -3,19 +3,35 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
 import { ImageUpload } from "@/components/admin/ImageUpload";
 import { toast } from "sonner";
-import { RiAddLine, RiEditLine, RiDeleteBinLine } from "react-icons/ri";
+import {
+  RiAddLine,
+  RiEditLine,
+  RiDeleteBinLine,
+  RiArticleLine,
+  RiImageLine,
+  RiSearchLine,
+  RiSettings4Line,
+  RiPriceTag3Line,
+} from "react-icons/ri";
+
+import { PageHeader } from "@/components/admin/shared/PageHeader";
+import {
+  EntityTable,
+  EntityColumn,
+} from "@/components/admin/shared/EntityTable";
+import {
+  EntitySheet,
+  EntitySheetSection,
+} from "@/components/admin/shared/EntitySheet";
+import { ConfirmDelete } from "@/components/admin/shared/ConfirmDelete";
+import { Field, FieldGrid } from "@/components/admin/shared/Field";
+import { ToggleRow } from "@/components/admin/shared/ToggleRow";
+import { TagInput } from "@/components/admin/shared/TagInput";
+import { MetaFields } from "@/components/admin/shared/MetaFields";
 
 interface BlogData {
   id?: string;
@@ -35,189 +51,375 @@ interface BlogData {
 }
 
 const emptyBlog: BlogData = {
-  slug: "", title: "", excerpt: "", content: "", author: "", coverImage: "",
-  category: "Travel Guide", tags: [], isPublished: false, publishedAt: null,
-  metaTitle: "", metaDescription: "", metaKeywords: "",
+  slug: "",
+  title: "",
+  excerpt: "",
+  content: "",
+  author: "",
+  coverImage: "",
+  category: "Travel Guide",
+  tags: [],
+  isPublished: false,
+  publishedAt: null,
+  metaTitle: "",
+  metaDescription: "",
+  metaKeywords: "",
 };
 
 export default function BlogsPage() {
   const [blogs, setBlogs] = useState<BlogData[]>([]);
   const [loading, setLoading] = useState(true);
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const [sheetOpen, setSheetOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [form, setForm] = useState<BlogData>(emptyBlog);
   const [saving, setSaving] = useState(false);
-  const [tagInput, setTagInput] = useState("");
 
-  useEffect(() => { fetchBlogs(); }, []);
+  useEffect(() => {
+    fetchBlogs();
+  }, []);
 
   async function fetchBlogs() {
     setLoading(true);
     try {
       const res = await fetch("/api/admin/blogs");
       setBlogs(await res.json());
-    } catch { toast.error("Failed to load blogs"); }
-    finally { setLoading(false); }
+    } catch {
+      toast.error("Failed to load blogs");
+    } finally {
+      setLoading(false);
+    }
   }
 
-  function openCreate() { setForm(emptyBlog); setDialogOpen(true); }
+  function openCreate() {
+    setForm(emptyBlog);
+    setSheetOpen(true);
+  }
   function openEdit(blog: BlogData) {
-    setForm({ ...blog, metaTitle: blog.metaTitle || "", metaDescription: blog.metaDescription || "", metaKeywords: blog.metaKeywords || "" });
-    setDialogOpen(true);
+    setForm({
+      ...blog,
+      metaTitle: blog.metaTitle || "",
+      metaDescription: blog.metaDescription || "",
+      metaKeywords: blog.metaKeywords || "",
+    });
+    setSheetOpen(true);
   }
 
   async function handleSave() {
+    if (!form.title.trim()) {
+      toast.error("Title is required");
+      return;
+    }
     setSaving(true);
     try {
-      const slug = form.slug || form.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+      const slug =
+        form.slug ||
+        form.title
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/(^-|-$)/g, "");
       const payload = { ...form, slug };
-      if (form.isPublished && !form.publishedAt) payload.publishedAt = new Date().toISOString();
+      if (form.isPublished && !form.publishedAt) {
+        payload.publishedAt = new Date().toISOString();
+      }
       delete (payload as Record<string, unknown>).id;
 
       const isEdit = !!form.id;
-      const res = await fetch(isEdit ? `/api/admin/blogs/${form.id}` : "/api/admin/blogs", {
-        method: isEdit ? "PUT" : "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      if (res.ok) { toast.success(isEdit ? "Blog updated!" : "Blog created!"); setDialogOpen(false); fetchBlogs(); }
-      else toast.error("Failed to save");
-    } catch { toast.error("Error saving"); }
-    finally { setSaving(false); }
+      const res = await fetch(
+        isEdit ? `/api/admin/blogs/${form.id}` : "/api/admin/blogs",
+        {
+          method: isEdit ? "PUT" : "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }
+      );
+      if (res.ok) {
+        toast.success(isEdit ? "Blog updated" : "Blog created");
+        setSheetOpen(false);
+        fetchBlogs();
+      } else toast.error("Failed to save");
+    } catch {
+      toast.error("Error saving");
+    } finally {
+      setSaving(false);
+    }
   }
 
   async function handleDelete() {
     if (!deleteId) return;
     try {
       await fetch(`/api/admin/blogs/${deleteId}`, { method: "DELETE" });
-      toast.success("Blog deleted!"); fetchBlogs();
-    } catch { toast.error("Failed to delete"); }
-    finally { setDeleteId(null); }
-  }
-
-  function addTag() {
-    if (tagInput.trim() && !form.tags.includes(tagInput.trim())) {
-      setForm((f) => ({ ...f, tags: [...f.tags, tagInput.trim()] }));
-      setTagInput("");
+      toast.success("Blog deleted");
+      fetchBlogs();
+    } catch {
+      toast.error("Failed to delete");
+    } finally {
+      setDeleteId(null);
     }
   }
 
+  const columns: EntityColumn<BlogData>[] = [
+    {
+      key: "post",
+      header: "Post",
+      cell: (b) => (
+        <div className="flex items-center gap-3">
+          {b.coverImage && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={b.coverImage}
+              alt=""
+              className="h-9 w-14 rounded-md object-cover"
+            />
+          )}
+          <div className="min-w-0">
+            <p className="text-sm font-medium line-clamp-1">{b.title}</p>
+            <p className="text-xs text-muted-foreground font-mono truncate">
+              /{b.slug}
+            </p>
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: "author",
+      header: "Author",
+      cell: (b) => <span className="text-sm">{b.author}</span>,
+    },
+    {
+      key: "category",
+      header: "Category",
+      cell: (b) => (
+        <Badge variant="outline" className="text-xs">
+          {b.category}
+        </Badge>
+      ),
+    },
+    {
+      key: "status",
+      header: "Status",
+      cell: (b) => (
+        <Badge variant={b.isPublished ? "default" : "secondary"}>
+          {b.isPublished ? "Published" : "Draft"}
+        </Badge>
+      ),
+    },
+    {
+      key: "actions",
+      header: "",
+      headClassName: "text-right",
+      className: "text-right",
+      cell: (b) => (
+        <div className="flex items-center justify-end gap-1">
+          <Button variant="ghost" size="sm" onClick={() => openEdit(b)}>
+            <RiEditLine className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-destructive hover:text-destructive"
+            onClick={() => setDeleteId(b.id!)}
+          >
+            <RiDeleteBinLine className="h-4 w-4" />
+          </Button>
+        </div>
+      ),
+    },
+  ];
+
+  const sections: EntitySheetSection[] = [
+    {
+      id: "content",
+      label: "Content",
+      icon: RiArticleLine,
+      description: "Title, author, excerpt and the article body.",
+      content: (
+        <div className="space-y-5">
+          <FieldGrid cols={2}>
+            <Field label="Title" required>
+              <Input
+                value={form.title}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, title: e.target.value }))
+                }
+              />
+            </Field>
+            <Field label="Slug" hint="Auto-generated from title.">
+              <Input
+                value={form.slug}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, slug: e.target.value }))
+                }
+              />
+            </Field>
+            <Field label="Author" required>
+              <Input
+                value={form.author}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, author: e.target.value }))
+                }
+              />
+            </Field>
+            <Field label="Category">
+              <Input
+                value={form.category}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, category: e.target.value }))
+                }
+              />
+            </Field>
+          </FieldGrid>
+
+          <Field
+            label="Excerpt"
+            required
+            hint="Short summary shown in blog listings and previews."
+          >
+            <Textarea
+              value={form.excerpt}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, excerpt: e.target.value }))
+              }
+              rows={2}
+            />
+          </Field>
+
+          <Field
+            label="Content"
+            required
+            hint="Markdown supported."
+            rightSlot={
+              <span className="text-[10px] text-muted-foreground tabular-nums">
+                {form.content.length.toLocaleString()} chars
+              </span>
+            }
+          >
+            <Textarea
+              value={form.content}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, content: e.target.value }))
+              }
+              rows={14}
+              className="font-mono text-sm"
+            />
+          </Field>
+
+          <Field label="Tags">
+            <TagInput
+              value={form.tags}
+              onChange={(v) => setForm((f) => ({ ...f, tags: v }))}
+              placeholder="Type a tag and press Enter"
+            />
+          </Field>
+        </div>
+      ),
+    },
+    {
+      id: "media",
+      label: "Media",
+      icon: RiImageLine,
+      description: "Cover image used as the post hero.",
+      content: (
+        <Field label="Cover Image">
+          <ImageUpload
+            value={form.coverImage}
+            onChange={(url) =>
+              setForm((f) => ({ ...f, coverImage: url }))
+            }
+            folder="blogs"
+          />
+        </Field>
+      ),
+    },
+    {
+      id: "seo",
+      label: "SEO",
+      icon: RiSearchLine,
+      content: (
+        <MetaFields
+          value={{
+            metaTitle: form.metaTitle,
+            metaDescription: form.metaDescription,
+            metaKeywords: form.metaKeywords,
+          }}
+          onChange={(m) =>
+            setForm((f) => ({
+              ...f,
+              metaTitle: m.metaTitle ?? "",
+              metaDescription: m.metaDescription ?? "",
+              metaKeywords: m.metaKeywords ?? "",
+            }))
+          }
+          fallbackTitle={form.title}
+          fallbackDescription={form.excerpt}
+        />
+      ),
+    },
+    {
+      id: "settings",
+      label: "Settings",
+      icon: RiSettings4Line,
+      content: (
+        <div className="space-y-3">
+          <ToggleRow
+            label="Published"
+            description="Once on, the post is publicly visible. Publish date is auto-set."
+            checked={form.isPublished}
+            onCheckedChange={(v) =>
+              setForm((f) => ({ ...f, isPublished: v }))
+            }
+          />
+        </div>
+      ),
+    },
+  ];
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Blogs</h1>
-          <p className="text-muted-foreground mt-1">Manage your travel blog posts</p>
-        </div>
-        <Button onClick={openCreate} className="gap-2"><RiAddLine className="w-4 h-4" /> Add Blog</Button>
-      </div>
+      <PageHeader
+        title="Blogs"
+        description="Write and publish travel articles."
+        actions={
+          <Button onClick={openCreate} className="gap-2">
+            <RiAddLine className="h-4 w-4" /> Add Blog
+          </Button>
+        }
+      />
 
-      <Card>
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Post</TableHead>
-                <TableHead>Author</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {loading ? (
-                <TableRow><TableCell colSpan={5} className="text-center py-10 text-muted-foreground">Loading...</TableCell></TableRow>
-              ) : blogs.length === 0 ? (
-                <TableRow><TableCell colSpan={5} className="text-center py-10 text-muted-foreground">No blogs yet.</TableCell></TableRow>
-              ) : blogs.map((blog) => (
-                <TableRow key={blog.id}>
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      {blog.coverImage && <img src={blog.coverImage} alt="" className="w-14 h-9 rounded-md object-cover" />}
-                      <div>
-                        <p className="font-medium text-sm line-clamp-1">{blog.title}</p>
-                        <p className="text-xs text-muted-foreground">{blog.slug}</p>
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-sm">{blog.author}</TableCell>
-                  <TableCell><Badge variant="outline" className="text-xs">{blog.category}</Badge></TableCell>
-                  <TableCell>
-                    <Badge variant={blog.isPublished ? "default" : "secondary"} className="text-xs">
-                      {blog.isPublished ? "Published" : "Draft"}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex items-center justify-end gap-1">
-                      <Button variant="ghost" size="sm" onClick={() => openEdit(blog)}><RiEditLine className="w-4 h-4" /></Button>
-                      <Button variant="ghost" size="sm" className="text-destructive" onClick={() => setDeleteId(blog.id!)}><RiDeleteBinLine className="w-4 h-4" /></Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+      <EntityTable
+        data={blogs}
+        columns={columns}
+        loading={loading}
+        rowKey={(b) => b.id ?? b.slug}
+        emptyTitle="No blog posts yet"
+        emptyDescription="Write your first article to see it listed here."
+      />
 
-      <Sheet open={dialogOpen} onOpenChange={setDialogOpen}>
-        <SheetContent className="w-full sm:max-w-3xl overflow-y-auto p-0 flex flex-col">
-          <SheetHeader className="p-6 pb-0">
-            <SheetTitle>{form.id ? "Edit Blog" : "Create Blog"}</SheetTitle>
-            <SheetDescription>Write and publish travel content.</SheetDescription>
-          </SheetHeader>
-          <div className="flex-1 overflow-y-auto px-6 py-4 space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2"><Label>Title *</Label><Input value={form.title} onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))} /></div>
-              <div className="space-y-2"><Label>Slug</Label><Input value={form.slug} onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))} placeholder="auto-generated" /></div>
-              <div className="space-y-2"><Label>Author *</Label><Input value={form.author} onChange={(e) => setForm((f) => ({ ...f, author: e.target.value }))} /></div>
-              <div className="space-y-2"><Label>Category</Label><Input value={form.category} onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))} /></div>
-            </div>
-            <div className="space-y-2"><Label>Cover Image</Label><ImageUpload value={form.coverImage} onChange={(url) => setForm((f) => ({ ...f, coverImage: url }))} folder="blogs" /></div>
-            <div className="space-y-2"><Label>Excerpt *</Label><Textarea value={form.excerpt} onChange={(e) => setForm((f) => ({ ...f, excerpt: e.target.value }))} rows={2} /></div>
-            <div className="space-y-2"><Label>Content * (Markdown supported)</Label><Textarea value={form.content} onChange={(e) => setForm((f) => ({ ...f, content: e.target.value }))} rows={12} className="font-mono text-sm" /></div>
+      <EntitySheet
+        open={sheetOpen}
+        onOpenChange={setSheetOpen}
+        title={form.id ? "Edit Blog" : "Create Blog"}
+        description="Write the article and configure its SEO."
+        sections={sections}
+        saving={saving}
+        saveLabel={form.id ? "Save changes" : "Create blog"}
+        onSave={handleSave}
+        footerLeft={
+          form.title ? (
+            <span className="inline-flex items-center gap-1.5">
+              <RiPriceTag3Line className="h-3 w-3" />
+              {form.title}
+            </span>
+          ) : null
+        }
+      />
 
-            <div className="space-y-2">
-              <Label>Tags</Label>
-              <div className="flex gap-2">
-                <Input value={tagInput} onChange={(e) => setTagInput(e.target.value)} placeholder="Add tag..." onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addTag())} />
-                <Button type="button" variant="outline" onClick={addTag}>Add</Button>
-              </div>
-              <div className="flex flex-wrap gap-1 mt-2">
-                {form.tags.map((tag) => (
-                  <Badge key={tag} variant="secondary" className="gap-1 cursor-pointer" onClick={() => setForm((f) => ({ ...f, tags: f.tags.filter((t) => t !== tag) }))}>
-                    {tag} ×
-                  </Badge>
-                ))}
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <Switch checked={form.isPublished} onCheckedChange={(v) => setForm((f) => ({ ...f, isPublished: v }))} />
-              <Label>Published</Label>
-            </div>
-
-            <Separator />
-            <div className="space-y-4">
-              <Label className="text-base font-semibold">SEO</Label>
-              <div className="space-y-2"><Label className="text-xs text-muted-foreground">Meta Title</Label><Input value={form.metaTitle} onChange={(e) => setForm((f) => ({ ...f, metaTitle: e.target.value }))} /></div>
-              <div className="space-y-2"><Label className="text-xs text-muted-foreground">Meta Description</Label><Textarea value={form.metaDescription} onChange={(e) => setForm((f) => ({ ...f, metaDescription: e.target.value }))} rows={2} /></div>
-              <div className="space-y-2"><Label className="text-xs text-muted-foreground">Meta Keywords</Label><Input value={form.metaKeywords} onChange={(e) => setForm((f) => ({ ...f, metaKeywords: e.target.value }))} /></div>
-            </div>
-          </div>
-          <SheetFooter className="p-6 pt-4 border-t">
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-            <Button onClick={handleSave} disabled={saving}>{saving ? "Saving..." : "Save Blog"}</Button>
-          </SheetFooter>
-        </SheetContent>
-      </Sheet>
-
-      <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader><AlertDialogTitle>Delete Blog?</AlertDialogTitle><AlertDialogDescription>This action cannot be undone.</AlertDialogDescription></AlertDialogHeader>
-          <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={handleDelete} className="bg-destructive text-white hover:bg-destructive/90">Delete</AlertDialogAction></AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmDelete
+        open={!!deleteId}
+        onOpenChange={() => setDeleteId(null)}
+        title="Delete this blog post?"
+        description="The post will be permanently removed."
+        onConfirm={handleDelete}
+      />
     </div>
   );
 }

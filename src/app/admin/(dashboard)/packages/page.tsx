@@ -1,27 +1,47 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
 import { MultiImageUpload } from "@/components/admin/ImageUpload";
 import { toast } from "sonner";
-import { RiAddLine, RiEditLine, RiDeleteBinLine, RiStarLine, RiCloseLine, RiAddCircleLine } from "react-icons/ri";
+import {
+  RiAddLine,
+  RiEditLine,
+  RiDeleteBinLine,
+  RiStarFill,
+  RiArticleLine,
+  RiImageLine,
+  RiCalendarTodoLine,
+  RiCheckboxLine,
+  RiSearchLine,
+  RiSettings4Line,
+  RiPriceTag3Line,
+} from "react-icons/ri";
 
-interface ItineraryItem {
-  day: number;
-  title: string;
-  activities: string;
-}
+import { PageHeader } from "@/components/admin/shared/PageHeader";
+import {
+  EntityTable,
+  EntityColumn,
+} from "@/components/admin/shared/EntityTable";
+import {
+  EntitySheet,
+  EntitySheetSection,
+} from "@/components/admin/shared/EntitySheet";
+import { ConfirmDelete } from "@/components/admin/shared/ConfirmDelete";
+import { Field, FieldGrid } from "@/components/admin/shared/Field";
+import { ToggleRow } from "@/components/admin/shared/ToggleRow";
+import { ListEditor } from "@/components/admin/shared/ListEditor";
+import {
+  ItineraryEditor,
+  ItineraryItem,
+} from "@/components/admin/shared/ItineraryEditor";
+import { MetaFields } from "@/components/admin/shared/MetaFields";
+import {
+  BadgeMultiSelect,
+} from "@/components/admin/shared/BadgeMultiSelect";
 
 interface PackageData {
   id?: string;
@@ -47,34 +67,54 @@ interface PackageData {
 }
 
 const emptyPackage: PackageData = {
-  slug: "", title: "", location: "", pricePerPerson: 0, durationDays: 1, durationNights: 0,
-  imageUrls: [], vehicleType: "", maxOccupancy: 1, description: "",
+  slug: "",
+  title: "",
+  location: "",
+  pricePerPerson: 0,
+  durationDays: 1,
+  durationNights: 0,
+  imageUrls: [],
+  vehicleType: "",
+  maxOccupancy: 1,
+  description: "",
   itinerary: [{ day: 1, title: "", activities: "" }],
-  inclusions: [""], exclusions: [""], categories: [],
-  isFeatured: false, isActive: true, metaTitle: "", metaDescription: "", metaKeywords: "",
+  inclusions: [],
+  exclusions: [],
+  categories: [],
+  isFeatured: false,
+  isActive: true,
+  metaTitle: "",
+  metaDescription: "",
+  metaKeywords: "",
 };
 
+interface NavGroup {
+  title: string;
+  slug: string;
+  type: string;
+}
 
 export default function PackagesPage() {
   const [packages, setPackages] = useState<PackageData[]>([]);
   const [loading, setLoading] = useState(true);
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const [sheetOpen, setSheetOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [form, setForm] = useState<PackageData>(emptyPackage);
   const [saving, setSaving] = useState(false);
+  const [packageGroups, setPackageGroups] = useState<NavGroup[]>([]);
 
-  useEffect(() => { 
+  useEffect(() => {
     fetchPackages();
-    fetchCategories();
+    fetchGroups();
   }, []);
 
-  const [packageGroups, setPackageGroups] = useState<{title: string, slug: string}[]>([]);
-
-  async function fetchCategories() {
+  async function fetchGroups() {
     try {
       const res = await fetch("/api/admin/internal-pages");
       const data = await res.json();
-      setPackageGroups(data.filter((p: any) => p.type === "package"));
+      setPackageGroups(
+        data.filter((p: NavGroup) => p.type === "package")
+      );
     } catch {}
   }
 
@@ -82,35 +122,46 @@ export default function PackagesPage() {
     setLoading(true);
     try {
       const res = await fetch("/api/admin/packages");
-      const data = await res.json();
-      setPackages(data);
-    } catch { toast.error("Failed to load packages"); }
-    finally { setLoading(false); }
+      setPackages(await res.json());
+    } catch {
+      toast.error("Failed to load packages");
+    } finally {
+      setLoading(false);
+    }
   }
 
   function openCreate() {
     setForm(emptyPackage);
-    setDialogOpen(true);
+    setSheetOpen(true);
   }
 
   function openEdit(pkg: PackageData) {
     setForm({
       ...pkg,
       itinerary: Array.isArray(pkg.itinerary) ? pkg.itinerary : [],
-      inclusions: pkg.inclusions?.length ? pkg.inclusions : [""],
-      exclusions: pkg.exclusions?.length ? pkg.exclusions : [""],
+      inclusions: pkg.inclusions || [],
+      exclusions: pkg.exclusions || [],
       categories: pkg.categories || [],
       metaTitle: pkg.metaTitle || "",
       metaDescription: pkg.metaDescription || "",
       metaKeywords: pkg.metaKeywords || "",
     });
-    setDialogOpen(true);
+    setSheetOpen(true);
   }
 
   async function handleSave() {
+    if (!form.title.trim()) {
+      toast.error("Title is required");
+      return;
+    }
     setSaving(true);
     try {
-      const slug = form.slug || form.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+      const slug =
+        form.slug ||
+        form.title
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/(^-|-$)/g, "");
       const payload = {
         ...form,
         slug,
@@ -121,7 +172,9 @@ export default function PackagesPage() {
       delete (payload as Record<string, unknown>).id;
 
       const isEdit = !!form.id;
-      const url = isEdit ? `/api/admin/packages/${form.id}` : "/api/admin/packages";
+      const url = isEdit
+        ? `/api/admin/packages/${form.id}`
+        : "/api/admin/packages";
       const res = await fetch(url, {
         method: isEdit ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
@@ -129,307 +182,411 @@ export default function PackagesPage() {
       });
 
       if (res.ok) {
-        toast.success(isEdit ? "Package updated!" : "Package created!");
-        setDialogOpen(false);
+        toast.success(isEdit ? "Package updated" : "Package created");
+        setSheetOpen(false);
         fetchPackages();
       } else {
         toast.error("Failed to save package");
       }
-    } catch { toast.error("Error saving package"); }
-    finally { setSaving(false); }
+    } catch {
+      toast.error("Error saving package");
+    } finally {
+      setSaving(false);
+    }
   }
 
   async function handleDelete() {
     if (!deleteId) return;
     try {
-      const res = await fetch(`/api/admin/packages/${deleteId}`, { method: "DELETE" });
+      const res = await fetch(`/api/admin/packages/${deleteId}`, {
+        method: "DELETE",
+      });
       if (res.ok) {
-        toast.success("Package deleted!");
+        toast.success("Package deleted");
         fetchPackages();
       }
-    } catch { toast.error("Failed to delete"); }
-    finally { setDeleteId(null); }
+    } catch {
+      toast.error("Failed to delete");
+    } finally {
+      setDeleteId(null);
+    }
   }
 
-  // Form helpers
-  function addItinerary() {
-    setForm((f) => ({ ...f, itinerary: [...f.itinerary, { day: f.itinerary.length + 1, title: "", activities: "" }] }));
-  }
-  function removeItinerary(i: number) {
-    setForm((f) => ({ ...f, itinerary: f.itinerary.filter((_, idx) => idx !== i).map((it, idx) => ({ ...it, day: idx + 1 })) }));
-  }
-  function updateItinerary(i: number, field: keyof ItineraryItem, value: string | number) {
-    setForm((f) => ({ ...f, itinerary: f.itinerary.map((it, idx) => idx === i ? { ...it, [field]: value } : it) }));
-  }
-  function addListItem(field: "inclusions" | "exclusions") {
-    setForm((f) => ({ ...f, [field]: [...f[field], ""] }));
-  }
-  function updateListItem(field: "inclusions" | "exclusions", i: number, value: string) {
-    setForm((f) => ({ ...f, [field]: f[field].map((v, idx) => idx === i ? value : v) }));
-  }
-  function removeListItem(field: "inclusions" | "exclusions", i: number) {
-    setForm((f) => ({ ...f, [field]: f[field].filter((_, idx) => idx !== i) }));
-  }
-  function toggleCategory(cat: string) {
-    setForm((f) => ({
-      ...f,
-      categories: f.categories.includes(cat) ? f.categories.filter((c) => c !== cat) : [...f.categories, cat],
-    }));
-  }
+  const groupOptions = useMemo(
+    () =>
+      packageGroups.map((g) => ({ value: g.slug, label: g.title })),
+    [packageGroups]
+  );
+
+  const columns: EntityColumn<PackageData>[] = [
+    {
+      key: "package",
+      header: "Package",
+      cell: (pkg) => (
+        <div className="flex items-center gap-3">
+          {pkg.imageUrls?.[0] && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={pkg.imageUrls[0]}
+              alt=""
+              className="h-9 w-14 rounded-md object-cover"
+            />
+          )}
+          <div className="min-w-0">
+            <p className="text-sm font-medium truncate">{pkg.title}</p>
+            <p className="text-xs text-muted-foreground truncate font-mono">
+              /{pkg.slug}
+            </p>
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: "location",
+      header: "Location",
+      cell: (p) => <span className="text-sm">{p.location}</span>,
+    },
+    {
+      key: "price",
+      header: "Price",
+      cell: (p) => (
+        <span className="text-sm font-medium">
+          ₹{p.pricePerPerson?.toLocaleString("en-IN")}
+        </span>
+      ),
+    },
+    {
+      key: "duration",
+      header: "Duration",
+      cell: (p) => (
+        <span className="text-sm">
+          {p.durationDays}D / {p.durationNights}N
+        </span>
+      ),
+    },
+    {
+      key: "status",
+      header: "Status",
+      cell: (p) => (
+        <div className="flex items-center gap-2">
+          <Badge variant={p.isActive ? "default" : "secondary"}>
+            {p.isActive ? "Active" : "Draft"}
+          </Badge>
+          {p.isFeatured && (
+            <RiStarFill className="h-3.5 w-3.5 text-amber-500" />
+          )}
+        </div>
+      ),
+    },
+    {
+      key: "actions",
+      header: "",
+      headClassName: "text-right",
+      className: "text-right",
+      cell: (p) => (
+        <div className="flex items-center justify-end gap-1">
+          <Button variant="ghost" size="sm" onClick={() => openEdit(p)}>
+            <RiEditLine className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-destructive hover:text-destructive"
+            onClick={() => setDeleteId(p.id!)}
+          >
+            <RiDeleteBinLine className="h-4 w-4" />
+          </Button>
+        </div>
+      ),
+    },
+  ];
+
+  const sections: EntitySheetSection[] = [
+    {
+      id: "content",
+      label: "Content",
+      icon: RiArticleLine,
+      description: "Title, location, pricing and description.",
+      content: (
+        <div className="space-y-5">
+          <FieldGrid cols={2}>
+            <Field label="Title" required>
+              <Input
+                value={form.title}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, title: e.target.value }))
+                }
+                placeholder="Spiti Valley Road Trip"
+              />
+            </Field>
+            <Field label="Slug" hint="Auto-generated from title.">
+              <Input
+                value={form.slug}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, slug: e.target.value }))
+                }
+                placeholder="spiti-valley-road-trip"
+              />
+            </Field>
+            <Field label="Location" required>
+              <Input
+                value={form.location}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, location: e.target.value }))
+                }
+                placeholder="Spiti Valley"
+              />
+            </Field>
+            <Field label="Vehicle Type" required>
+              <Input
+                value={form.vehicleType}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, vehicleType: e.target.value }))
+                }
+                placeholder="Tempo Traveller"
+              />
+            </Field>
+            <Field label="Price Per Person (₹)" required>
+              <Input
+                type="number"
+                value={form.pricePerPerson}
+                onChange={(e) =>
+                  setForm((f) => ({
+                    ...f,
+                    pricePerPerson: Number(e.target.value),
+                  }))
+                }
+              />
+            </Field>
+            <Field label="Max Occupancy" required>
+              <Input
+                type="number"
+                value={form.maxOccupancy}
+                onChange={(e) =>
+                  setForm((f) => ({
+                    ...f,
+                    maxOccupancy: Number(e.target.value),
+                  }))
+                }
+              />
+            </Field>
+            <Field label="Duration (Days)" required>
+              <Input
+                type="number"
+                value={form.durationDays}
+                onChange={(e) =>
+                  setForm((f) => ({
+                    ...f,
+                    durationDays: Number(e.target.value),
+                  }))
+                }
+              />
+            </Field>
+            <Field label="Duration (Nights)" required>
+              <Input
+                type="number"
+                value={form.durationNights}
+                onChange={(e) =>
+                  setForm((f) => ({
+                    ...f,
+                    durationNights: Number(e.target.value),
+                  }))
+                }
+              />
+            </Field>
+          </FieldGrid>
+
+          <Field label="Description" required>
+            <Textarea
+              value={form.description}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, description: e.target.value }))
+              }
+              rows={5}
+              placeholder="Detailed package description..."
+            />
+          </Field>
+
+          <Field
+            label="Nav Groups"
+            hint="Tag this package so it shows up under matching navbar groups."
+          >
+            <BadgeMultiSelect
+              options={groupOptions}
+              value={form.categories}
+              onChange={(v) => setForm((f) => ({ ...f, categories: v }))}
+              emptyHint="No nav groups yet. Create one in the Nav Groups page."
+            />
+          </Field>
+        </div>
+      ),
+    },
+    {
+      id: "media",
+      label: "Media",
+      icon: RiImageLine,
+      description: "Photo gallery shown on the package page.",
+      badge:
+        form.imageUrls.length > 0 ? (
+          <Badge variant="secondary" className="h-4 px-1 text-[10px]">
+            {form.imageUrls.length}
+          </Badge>
+        ) : undefined,
+      content: (
+        <Field
+          label="Images"
+          hint="First image is used as the cover. PNG, JPG or WEBP up to 10MB."
+        >
+          <MultiImageUpload
+            value={form.imageUrls}
+            onChange={(urls) => setForm((f) => ({ ...f, imageUrls: urls }))}
+            folder="packages"
+          />
+        </Field>
+      ),
+    },
+    {
+      id: "itinerary",
+      label: "Itinerary",
+      icon: RiCalendarTodoLine,
+      description: "Day-by-day breakdown of the trip.",
+      badge:
+        form.itinerary.length > 0 ? (
+          <Badge variant="secondary" className="h-4 px-1 text-[10px]">
+            {form.itinerary.length}
+          </Badge>
+        ) : undefined,
+      content: (
+        <ItineraryEditor
+          value={form.itinerary}
+          onChange={(v) => setForm((f) => ({ ...f, itinerary: v }))}
+        />
+      ),
+    },
+    {
+      id: "inclusions",
+      label: "Inclusions & Exclusions",
+      icon: RiCheckboxLine,
+      description: "What is included and what is not in the price.",
+      content: (
+        <div className="space-y-6">
+          <Field label="Inclusions" hint="What's included in the package price.">
+            <ListEditor
+              value={form.inclusions}
+              onChange={(v) => setForm((f) => ({ ...f, inclusions: v }))}
+              placeholder="e.g. Accommodation in 3-star hotels"
+              addLabel="Add inclusion"
+            />
+          </Field>
+          <Field label="Exclusions" hint="What guests need to pay separately.">
+            <ListEditor
+              value={form.exclusions}
+              onChange={(v) => setForm((f) => ({ ...f, exclusions: v }))}
+              placeholder="e.g. Personal expenses"
+              addLabel="Add exclusion"
+            />
+          </Field>
+        </div>
+      ),
+    },
+    {
+      id: "seo",
+      label: "SEO",
+      icon: RiSearchLine,
+      description: "Meta tags and search preview.",
+      content: (
+        <MetaFields
+          value={{
+            metaTitle: form.metaTitle,
+            metaDescription: form.metaDescription,
+            metaKeywords: form.metaKeywords,
+          }}
+          onChange={(m) =>
+            setForm((f) => ({
+              ...f,
+              metaTitle: m.metaTitle ?? "",
+              metaDescription: m.metaDescription ?? "",
+              metaKeywords: m.metaKeywords ?? "",
+            }))
+          }
+          fallbackTitle={form.title}
+          fallbackDescription={form.description}
+        />
+      ),
+    },
+    {
+      id: "settings",
+      label: "Settings",
+      icon: RiSettings4Line,
+      description: "Visibility and feature flags.",
+      content: (
+        <div className="space-y-3">
+          <ToggleRow
+            label="Active"
+            description="Hide from the public site without deleting."
+            checked={form.isActive}
+            onCheckedChange={(v) => setForm((f) => ({ ...f, isActive: v }))}
+          />
+          <ToggleRow
+            label="Featured"
+            description="Highlight this package on the homepage."
+            checked={form.isFeatured}
+            onCheckedChange={(v) =>
+              setForm((f) => ({ ...f, isFeatured: v }))
+            }
+          />
+        </div>
+      ),
+    },
+  ];
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Packages</h1>
-          <p className="text-muted-foreground mt-1">Manage your tour packages</p>
-        </div>
-        <Button onClick={openCreate} className="gap-2">
-          <RiAddLine className="w-4 h-4" /> Add Package
-        </Button>
-      </div>
+      <PageHeader
+        title="Packages"
+        description="Manage your tour packages, itineraries and inclusions."
+        actions={
+          <Button onClick={openCreate} className="gap-2">
+            <RiAddLine className="h-4 w-4" /> Add Package
+          </Button>
+        }
+      />
 
-      <Card>
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Package</TableHead>
-                <TableHead>Location</TableHead>
-                <TableHead>Price</TableHead>
-                <TableHead>Duration</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {loading ? (
-                <TableRow><TableCell colSpan={6} className="text-center py-10 text-muted-foreground">Loading...</TableCell></TableRow>
-              ) : packages.length === 0 ? (
-                <TableRow><TableCell colSpan={6} className="text-center py-10 text-muted-foreground">No packages yet. Create your first one!</TableCell></TableRow>
-              ) : (
-                packages.map((pkg) => (
-                  <TableRow key={pkg.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        {pkg.imageUrls?.[0] && (
-                          <img src={pkg.imageUrls[0]} alt="" className="w-12 h-8 rounded-md object-cover" />
-                        )}
-                        <div>
-                          <p className="font-medium text-sm">{pkg.title}</p>
-                          <p className="text-xs text-muted-foreground">{pkg.slug}</p>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-sm">{pkg.location}</TableCell>
-                    <TableCell className="text-sm font-medium">₹{pkg.pricePerPerson?.toLocaleString("en-IN")}</TableCell>
-                    <TableCell className="text-sm">{pkg.durationDays}D/{pkg.durationNights}N</TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        {pkg.isActive ? <Badge variant="default" className="text-xs">Active</Badge> : <Badge variant="secondary" className="text-xs">Draft</Badge>}
-                        {pkg.isFeatured && <RiStarLine className="w-4 h-4 text-amber-500" />}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        <Button variant="ghost" size="sm" onClick={() => openEdit(pkg)}><RiEditLine className="w-4 h-4" /></Button>
-                        <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive" onClick={() => setDeleteId(pkg.id!)}><RiDeleteBinLine className="w-4 h-4" /></Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+      <EntityTable
+        data={packages}
+        columns={columns}
+        loading={loading}
+        rowKey={(p) => p.id ?? p.slug}
+        emptyTitle="No packages yet"
+        emptyDescription="Create your first tour package to see it here."
+      />
 
-      {/* Create/Edit Sheet */}
-      <Sheet open={dialogOpen} onOpenChange={setDialogOpen}>
-        <SheetContent className="w-full sm:max-w-3xl overflow-y-auto p-0 flex flex-col">
-          <SheetHeader className="p-6 pb-0">
-            <SheetTitle>{form.id ? "Edit Package" : "Create Package"}</SheetTitle>
-            <SheetDescription>Fill in the details for your tour package.</SheetDescription>
-          </SheetHeader>
-          <div className="flex-1 overflow-y-auto px-6 py-4 space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Title *</Label>
-                <Input value={form.title} onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))} placeholder="Spiti Valley Road Trip" />
-              </div>
-              <div className="space-y-2">
-                <Label>Slug</Label>
-                <Input value={form.slug} onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))} placeholder="auto-generated" />
-              </div>
-              <div className="space-y-2">
-                <Label>Location *</Label>
-                <Input value={form.location} onChange={(e) => setForm((f) => ({ ...f, location: e.target.value }))} placeholder="Spiti Valley" />
-              </div>
-              <div className="space-y-2">
-                <Label>Vehicle Type *</Label>
-                <Input value={form.vehicleType} onChange={(e) => setForm((f) => ({ ...f, vehicleType: e.target.value }))} placeholder="Tempo Traveller" />
-              </div>
-              <div className="space-y-2">
-                <Label>Price Per Person (₹) *</Label>
-                <Input type="number" value={form.pricePerPerson} onChange={(e) => setForm((f) => ({ ...f, pricePerPerson: Number(e.target.value) }))} />
-              </div>
-              <div className="space-y-2">
-                <Label>Max Occupancy *</Label>
-                <Input type="number" value={form.maxOccupancy} onChange={(e) => setForm((f) => ({ ...f, maxOccupancy: Number(e.target.value) }))} />
-              </div>
-              <div className="space-y-2">
-                <Label>Duration Days *</Label>
-                <Input type="number" value={form.durationDays} onChange={(e) => setForm((f) => ({ ...f, durationDays: Number(e.target.value) }))} />
-              </div>
-              <div className="space-y-2">
-                <Label>Duration Nights *</Label>
-                <Input type="number" value={form.durationNights} onChange={(e) => setForm((f) => ({ ...f, durationNights: Number(e.target.value) }))} />
-              </div>
-            </div>
+      <EntitySheet
+        open={sheetOpen}
+        onOpenChange={setSheetOpen}
+        title={form.id ? "Edit Package" : "Create Package"}
+        description="Set up the package content, images, itinerary and SEO."
+        sections={sections}
+        saving={saving}
+        saveLabel={form.id ? "Save changes" : "Create package"}
+        onSave={handleSave}
+        footerLeft={
+          form.title ? (
+            <span className="inline-flex items-center gap-1.5">
+              <RiPriceTag3Line className="h-3 w-3" />
+              {form.title}
+            </span>
+          ) : null
+        }
+      />
 
-            <div className="space-y-2">
-              <Label>Description *</Label>
-              <Textarea value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} rows={4} placeholder="Detailed package description..." />
-            </div>
-
-            {/* Images */}
-            <div className="space-y-2">
-              <Label>Images</Label>
-              <MultiImageUpload value={form.imageUrls} onChange={(urls) => setForm((f) => ({ ...f, imageUrls: urls }))} folder="packages" />
-            </div>
-
-            {/* Categories */}
-            <div className="space-y-2">
-              <Label>Categories (Nav Groups)</Label>
-              <div className="flex flex-wrap gap-2">
-                {packageGroups.map((group) => (
-                  <Badge
-                    key={group.slug}
-                    variant={form.categories.includes(group.slug) ? "default" : "outline"}
-                    className="cursor-pointer capitalize"
-                    onClick={() => toggleCategory(group.slug)}
-                  >
-                    {group.title}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-
-            {/* Toggles */}
-            <div className="flex items-center gap-8">
-              <div className="flex items-center gap-2">
-                <Switch checked={form.isFeatured} onCheckedChange={(v) => setForm((f) => ({ ...f, isFeatured: v }))} />
-                <Label>Featured</Label>
-              </div>
-              <div className="flex items-center gap-2">
-                <Switch checked={form.isActive} onCheckedChange={(v) => setForm((f) => ({ ...f, isActive: v }))} />
-                <Label>Active</Label>
-              </div>
-            </div>
-
-            <Separator />
-
-            {/* Itinerary */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <Label className="text-base font-semibold">Itinerary</Label>
-                <Button type="button" variant="outline" size="sm" onClick={addItinerary} className="gap-1">
-                  <RiAddCircleLine className="w-4 h-4" /> Add Day
-                </Button>
-              </div>
-              {form.itinerary.map((item, i) => (
-                <div key={i} className="grid grid-cols-[auto_1fr_2fr_auto] gap-2 items-start">
-                  <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center text-sm font-bold text-muted-foreground mt-0.5">
-                    D{item.day}
-                  </div>
-                  <Input value={item.title} onChange={(e) => updateItinerary(i, "title", e.target.value)} placeholder="Day title" />
-                  <Input value={item.activities} onChange={(e) => updateItinerary(i, "activities", e.target.value)} placeholder="Activities description" />
-                  <Button type="button" variant="ghost" size="sm" onClick={() => removeItinerary(i)} className="text-destructive mt-0.5">
-                    <RiCloseLine className="w-4 h-4" />
-                  </Button>
-                </div>
-              ))}
-            </div>
-
-            <Separator />
-
-            {/* Inclusions */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <Label className="text-base font-semibold">Inclusions</Label>
-                <Button type="button" variant="outline" size="sm" onClick={() => addListItem("inclusions")} className="gap-1">
-                  <RiAddCircleLine className="w-4 h-4" /> Add
-                </Button>
-              </div>
-              {form.inclusions.map((item, i) => (
-                <div key={i} className="flex gap-2">
-                  <Input value={item} onChange={(e) => updateListItem("inclusions", i, e.target.value)} placeholder="e.g. Accommodation in hotels" />
-                  <Button type="button" variant="ghost" size="sm" onClick={() => removeListItem("inclusions", i)} className="text-destructive shrink-0">
-                    <RiCloseLine className="w-4 h-4" />
-                  </Button>
-                </div>
-              ))}
-            </div>
-
-            {/* Exclusions */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <Label className="text-base font-semibold">Exclusions</Label>
-                <Button type="button" variant="outline" size="sm" onClick={() => addListItem("exclusions")} className="gap-1">
-                  <RiAddCircleLine className="w-4 h-4" /> Add
-                </Button>
-              </div>
-              {form.exclusions.map((item, i) => (
-                <div key={i} className="flex gap-2">
-                  <Input value={item} onChange={(e) => updateListItem("exclusions", i, e.target.value)} placeholder="e.g. Lunch and snacks" />
-                  <Button type="button" variant="ghost" size="sm" onClick={() => removeListItem("exclusions", i)} className="text-destructive shrink-0">
-                    <RiCloseLine className="w-4 h-4" />
-                  </Button>
-                </div>
-              ))}
-            </div>
-
-            <Separator />
-
-            {/* SEO */}
-            <div className="space-y-4">
-              <Label className="text-base font-semibold">SEO Settings</Label>
-              <div className="grid grid-cols-1 gap-4">
-                <div className="space-y-2">
-                  <Label className="text-xs text-muted-foreground">Meta Title</Label>
-                  <Input value={form.metaTitle} onChange={(e) => setForm((f) => ({ ...f, metaTitle: e.target.value }))} placeholder="SEO title (defaults to package title)" />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-xs text-muted-foreground">Meta Description</Label>
-                  <Textarea value={form.metaDescription} onChange={(e) => setForm((f) => ({ ...f, metaDescription: e.target.value }))} placeholder="SEO description" rows={2} />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-xs text-muted-foreground">Meta Keywords</Label>
-                  <Input value={form.metaKeywords} onChange={(e) => setForm((f) => ({ ...f, metaKeywords: e.target.value }))} placeholder="spiti, tour, adventure" />
-                </div>
-              </div>
-            </div>
-          </div>
-          <SheetFooter className="p-6 pt-4 border-t">
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-            <Button onClick={handleSave} disabled={saving}>{saving ? "Saving..." : "Save Package"}</Button>
-          </SheetFooter>
-        </SheetContent>
-      </Sheet>
-
-      {/* Delete Confirmation */}
-      <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Package?</AlertDialogTitle>
-            <AlertDialogDescription>This action cannot be undone. The package will be permanently removed.</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-white hover:bg-destructive/90">Delete</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmDelete
+        open={!!deleteId}
+        onOpenChange={() => setDeleteId(null)}
+        title="Delete this package?"
+        description="The package will be permanently removed and unlinked from any nav groups."
+        onConfirm={handleDelete}
+      />
     </div>
   );
 }

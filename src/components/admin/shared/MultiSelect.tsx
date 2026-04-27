@@ -8,6 +8,7 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
+  CommandSeparator,
 } from "@/components/ui/command";
 import {
   Popover,
@@ -17,11 +18,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-  RiArrowUpDownLine,
-  RiCloseLine,
-  RiCheckLine,
   RiArrowUpLine,
   RiArrowDownLine,
+  RiCheckLine,
+  RiCloseLine,
+  RiSearchLine,
 } from "react-icons/ri";
 import { cn } from "@/lib/utils";
 
@@ -39,7 +40,8 @@ interface Props {
   placeholder?: string;
   emptyText?: string;
   searchPlaceholder?: string;
-  maxHeight?: string;
+  selectedTitle?: string;
+  noun?: string;
   className?: string;
 }
 
@@ -47,10 +49,11 @@ export function MultiSelect({
   options,
   value,
   onChange,
-  placeholder = "Select items...",
-  emptyText = "No items found.",
+  placeholder = "Click to add items",
+  emptyText = "No matches.",
   searchPlaceholder = "Search...",
-  maxHeight = "20rem",
+  selectedTitle = "Selected",
+  noun = "item",
   className,
 }: Props) {
   const [open, setOpen] = useState(false);
@@ -58,6 +61,11 @@ export function MultiSelect({
   const optionMap = useMemo(
     () => new Map(options.map((o) => [o.value, o])),
     [options]
+  );
+
+  const unselected = useMemo(
+    () => options.filter((o) => !value.includes(o.value)),
+    [options, value]
   );
 
   function toggle(v: string) {
@@ -79,6 +87,7 @@ export function MultiSelect({
 
   return (
     <div className={cn("space-y-3", className)}>
+      {/* Trigger picker */}
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
           <Button
@@ -86,12 +95,19 @@ export function MultiSelect({
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            className="w-full justify-between font-normal"
+            className="h-10 w-full justify-between font-normal"
           >
-            <span className="truncate text-muted-foreground">
-              {value.length > 0 ? `${value.length} selected` : placeholder}
+            <span className="flex items-center gap-2">
+              <RiSearchLine className="h-4 w-4 text-muted-foreground" />
+              <span className="text-muted-foreground">
+                {value.length > 0
+                  ? `${value.length} ${noun}${value.length === 1 ? "" : "s"} selected`
+                  : placeholder}
+              </span>
             </span>
-            <RiArrowUpDownLine className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            <Badge variant="secondary" className="h-5 px-1.5 text-[10px]">
+              {options.length} available
+            </Badge>
           </Button>
         </PopoverTrigger>
         <PopoverContent
@@ -100,82 +116,133 @@ export function MultiSelect({
         >
           <Command>
             <CommandInput placeholder={searchPlaceholder} />
-            <CommandList style={{ maxHeight }}>
+            <CommandList className="max-h-[22rem]">
               <CommandEmpty>{emptyText}</CommandEmpty>
-              <CommandGroup>
-                {options.map((opt) => {
-                  const checked = value.includes(opt.value);
-                  return (
-                    <CommandItem
-                      key={opt.value}
-                      value={`${opt.label} ${opt.description ?? ""}`}
-                      onSelect={() => toggle(opt.value)}
-                      data-checked={checked}
-                      className="flex items-center gap-3 py-2"
-                    >
-                      <div
-                        className={cn(
-                          "flex h-5 w-5 shrink-0 items-center justify-center rounded border",
-                          checked
-                            ? "border-primary bg-primary text-primary-foreground"
-                            : "border-input bg-background"
-                        )}
-                      >
-                        {checked && <RiCheckLine className="h-3.5 w-3.5" />}
-                      </div>
-                      {opt.imageUrl && (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={opt.imageUrl}
-                          alt=""
-                          className="h-9 w-9 shrink-0 rounded-md object-cover"
-                        />
-                      )}
-                      <div className="min-w-0 flex-1">
-                        <div className="truncate text-sm font-medium">
-                          {opt.label}
-                        </div>
-                        {opt.description && (
-                          <div className="truncate text-xs text-muted-foreground">
-                            {opt.description}
+
+              {value.length > 0 && (
+                <>
+                  <CommandGroup heading={`${selectedTitle} (${value.length})`}>
+                    {value.map((v) => {
+                      const opt = optionMap.get(v);
+                      if (!opt) return null;
+                      return (
+                        <CommandItem
+                          key={v}
+                          value={`✓ ${opt.label} ${opt.description ?? ""}`}
+                          onSelect={() => toggle(v)}
+                          className="flex items-center gap-3 py-2"
+                        >
+                          <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded border border-primary bg-primary text-primary-foreground">
+                            <RiCheckLine className="h-3.5 w-3.5" />
                           </div>
-                        )}
+                          {opt.imageUrl && (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={opt.imageUrl}
+                              alt=""
+                              className="h-9 w-9 shrink-0 rounded-md object-cover"
+                            />
+                          )}
+                          <div className="min-w-0 flex-1">
+                            <div className="truncate text-sm font-medium">
+                              {opt.label}
+                            </div>
+                            {opt.description && (
+                              <div className="truncate text-xs text-muted-foreground">
+                                {opt.description}
+                              </div>
+                            )}
+                          </div>
+                        </CommandItem>
+                      );
+                    })}
+                  </CommandGroup>
+                  <CommandSeparator />
+                </>
+              )}
+
+              <CommandGroup
+                heading={`Available (${unselected.length})`}
+              >
+                {unselected.map((opt) => (
+                  <CommandItem
+                    key={opt.value}
+                    value={`${opt.label} ${opt.description ?? ""}`}
+                    onSelect={() => toggle(opt.value)}
+                    className="flex items-center gap-3 py-2"
+                  >
+                    <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded border border-input bg-background" />
+                    {opt.imageUrl && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={opt.imageUrl}
+                        alt=""
+                        className="h-9 w-9 shrink-0 rounded-md object-cover"
+                      />
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-sm font-medium">
+                        {opt.label}
                       </div>
-                    </CommandItem>
-                  );
-                })}
+                      {opt.description && (
+                        <div className="truncate text-xs text-muted-foreground">
+                          {opt.description}
+                        </div>
+                      )}
+                    </div>
+                  </CommandItem>
+                ))}
               </CommandGroup>
             </CommandList>
           </Command>
         </PopoverContent>
       </Popover>
 
-      {value.length > 0 && (
-        <div className="rounded-lg border bg-muted/30 p-2">
-          <div className="mb-2 flex items-center justify-between px-1">
-            <span className="text-xs font-medium text-muted-foreground">
-              {value.length} selected · use ↑↓ to reorder
-            </span>
+      {/* Selected list — ordered preview */}
+      {value.length > 0 ? (
+        <div className="rounded-lg border bg-muted/20">
+          <div className="flex items-center justify-between border-b px-3 py-2">
+            <div className="flex items-center gap-2 text-xs font-medium">
+              <span>Selected order</span>
+              <Badge variant="outline" className="h-4 px-1 text-[10px]">
+                {value.length}
+              </Badge>
+            </div>
             <button
               type="button"
               onClick={() => onChange([])}
-              className="text-xs text-muted-foreground hover:text-destructive"
+              className="text-[11px] text-muted-foreground hover:text-destructive"
             >
               Clear all
             </button>
           </div>
-          <ul className="space-y-1">
+          <ul className="divide-y">
             {value.map((v, idx) => {
               const opt = optionMap.get(v);
-              if (!opt) return null;
+              if (!opt)
+                return (
+                  <li
+                    key={v}
+                    className="flex items-center gap-2 px-3 py-2 text-xs text-muted-foreground"
+                  >
+                    Missing item
+                    <button
+                      type="button"
+                      onClick={() => remove(v)}
+                      className="ml-auto text-muted-foreground hover:text-destructive"
+                    >
+                      <RiCloseLine className="h-3.5 w-3.5" />
+                    </button>
+                  </li>
+                );
               return (
                 <li
                   key={v}
-                  className="flex items-center gap-2 rounded-md bg-background px-2 py-1.5 ring-1 ring-border"
+                  className="flex items-center gap-2 px-3 py-2 hover:bg-background/60"
                 >
                   <Badge
-                    variant="secondary"
-                    className="h-5 w-5 justify-center p-0 text-[10px] tabular-nums"
+                    variant="outline"
+                    className="h-5 w-6 justify-center p-0 text-[10px] tabular-nums"
                   >
                     {idx + 1}
                   </Badge>
@@ -184,7 +251,7 @@ export function MultiSelect({
                     <img
                       src={opt.imageUrl}
                       alt=""
-                      className="h-7 w-7 shrink-0 rounded object-cover"
+                      className="h-8 w-8 shrink-0 rounded object-cover"
                     />
                   )}
                   <div className="min-w-0 flex-1">
@@ -227,6 +294,10 @@ export function MultiSelect({
               );
             })}
           </ul>
+        </div>
+      ) : (
+        <div className="rounded-lg border border-dashed p-4 text-center text-xs text-muted-foreground">
+          Nothing selected yet. Open the picker above and choose {noun}s.
         </div>
       )}
     </div>

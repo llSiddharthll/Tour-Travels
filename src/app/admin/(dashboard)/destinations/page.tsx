@@ -1,186 +1,496 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
 import { ImageUpload } from "@/components/admin/ImageUpload";
 import { toast } from "sonner";
-import { RiAddLine, RiEditLine, RiDeleteBinLine, RiAddCircleLine, RiCloseLine } from "react-icons/ri";
+import {
+  RiAddLine,
+  RiEditLine,
+  RiDeleteBinLine,
+  RiArticleLine,
+  RiImageLine,
+  RiStarLine,
+  RiSearchLine,
+  RiSettings4Line,
+  RiMapPinLine,
+} from "react-icons/ri";
+
+import { PageHeader } from "@/components/admin/shared/PageHeader";
+import {
+  EntityTable,
+  EntityColumn,
+} from "@/components/admin/shared/EntityTable";
+import {
+  EntitySheet,
+  EntitySheetSection,
+} from "@/components/admin/shared/EntitySheet";
+import { ConfirmDelete } from "@/components/admin/shared/ConfirmDelete";
+import { Field, FieldGrid } from "@/components/admin/shared/Field";
+import { ToggleRow } from "@/components/admin/shared/ToggleRow";
+import { ListEditor } from "@/components/admin/shared/ListEditor";
+import { MetaFields } from "@/components/admin/shared/MetaFields";
+import { BadgeMultiSelect } from "@/components/admin/shared/BadgeMultiSelect";
+import { StatusBadge } from "@/components/admin/shared/StatusBadge";
 
 interface DestData {
-  id?: string; slug: string; name: string; tagline: string; description: string;
-  bestTime: string; altitude: string; vibe: string; image: string;
-  highlights: string[]; categories: string[]; isActive: boolean; sortOrder: number;
-  metaTitle: string; metaDescription: string; metaKeywords: string;
+  id?: string;
+  slug: string;
+  name: string;
+  tagline: string;
+  description: string;
+  bestTime: string;
+  altitude: string;
+  vibe: string;
+  image: string;
+  highlights: string[];
+  categories: string[];
+  isActive: boolean;
+  sortOrder: number;
+  metaTitle: string;
+  metaDescription: string;
+  metaKeywords: string;
 }
 
 const emptyDest: DestData = {
-  slug: "", name: "", tagline: "", description: "", bestTime: "", altitude: "", vibe: "",
-  image: "", highlights: [""], categories: [], isActive: true, sortOrder: 0,
-  metaTitle: "", metaDescription: "", metaKeywords: "",
+  slug: "",
+  name: "",
+  tagline: "",
+  description: "",
+  bestTime: "",
+  altitude: "",
+  vibe: "",
+  image: "",
+  highlights: [],
+  categories: [],
+  isActive: true,
+  sortOrder: 0,
+  metaTitle: "",
+  metaDescription: "",
+  metaKeywords: "",
 };
+
+interface NavGroup {
+  title: string;
+  slug: string;
+  type: string;
+}
 
 export default function DestinationsPage() {
   const [items, setItems] = useState<DestData[]>([]);
   const [loading, setLoading] = useState(true);
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const [sheetOpen, setSheetOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [form, setForm] = useState<DestData>(emptyDest);
   const [saving, setSaving] = useState(false);
+  const [destGroups, setDestGroups] = useState<NavGroup[]>([]);
 
-  useEffect(() => { 
+  useEffect(() => {
     fetchItems();
-    fetchCategories();
+    fetchGroups();
   }, []);
 
-  const [destGroups, setDestGroups] = useState<{title: string, slug: string}[]>([]);
-
-  async function fetchCategories() {
+  async function fetchGroups() {
     try {
       const res = await fetch("/api/admin/internal-pages");
       const data = await res.json();
-      setDestGroups(data.filter((p: any) => p.type === "destination"));
+      setDestGroups(
+        data.filter((p: NavGroup) => p.type === "destination")
+      );
     } catch {}
   }
 
   async function fetchItems() {
     setLoading(true);
-    try { setItems(await (await fetch("/api/admin/destinations")).json()); }
-    catch { toast.error("Failed to load"); }
-    finally { setLoading(false); }
+    try {
+      setItems(await (await fetch("/api/admin/destinations")).json());
+    } catch {
+      toast.error("Failed to load destinations");
+    } finally {
+      setLoading(false);
+    }
   }
 
-  function openCreate() { setForm(emptyDest); setDialogOpen(true); }
+  function openCreate() {
+    setForm(emptyDest);
+    setSheetOpen(true);
+  }
+
   function openEdit(item: DestData) {
-    setForm({ ...item, highlights: item.highlights?.length ? item.highlights : [""], categories: item.categories || [], metaTitle: item.metaTitle || "", metaDescription: item.metaDescription || "", metaKeywords: item.metaKeywords || "" });
-    setDialogOpen(true);
+    setForm({
+      ...item,
+      highlights: item.highlights || [],
+      categories: item.categories || [],
+      metaTitle: item.metaTitle || "",
+      metaDescription: item.metaDescription || "",
+      metaKeywords: item.metaKeywords || "",
+    });
+    setSheetOpen(true);
   }
 
   async function handleSave() {
+    if (!form.name.trim()) {
+      toast.error("Name is required");
+      return;
+    }
     setSaving(true);
     try {
-      const slug = form.slug || form.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
-      const payload = { ...form, slug, highlights: form.highlights.filter(Boolean) };
+      const slug =
+        form.slug ||
+        form.name
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/(^-|-$)/g, "");
+      const payload = {
+        ...form,
+        slug,
+        highlights: form.highlights.filter(Boolean),
+      };
       delete (payload as Record<string, unknown>).id;
 
       const isEdit = !!form.id;
-      const res = await fetch(isEdit ? `/api/admin/destinations/${form.id}` : "/api/admin/destinations", {
-        method: isEdit ? "PUT" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload),
-      });
-      if (res.ok) { toast.success(isEdit ? "Updated!" : "Created!"); setDialogOpen(false); fetchItems(); }
-      else toast.error("Failed to save");
-    } catch { toast.error("Error saving"); }
-    finally { setSaving(false); }
+      const res = await fetch(
+        isEdit
+          ? `/api/admin/destinations/${form.id}`
+          : "/api/admin/destinations",
+        {
+          method: isEdit ? "PUT" : "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }
+      );
+      if (res.ok) {
+        toast.success(isEdit ? "Updated" : "Created");
+        setSheetOpen(false);
+        fetchItems();
+      } else toast.error("Failed to save");
+    } catch {
+      toast.error("Error saving");
+    } finally {
+      setSaving(false);
+    }
   }
 
   async function handleDelete() {
     if (!deleteId) return;
-    try { await fetch(`/api/admin/destinations/${deleteId}`, { method: "DELETE" }); toast.success("Deleted!"); fetchItems(); }
-    catch { toast.error("Failed"); }
-    finally { setDeleteId(null); }
+    try {
+      await fetch(`/api/admin/destinations/${deleteId}`, {
+        method: "DELETE",
+      });
+      toast.success("Deleted");
+      fetchItems();
+    } catch {
+      toast.error("Failed");
+    } finally {
+      setDeleteId(null);
+    }
   }
+
+  const groupOptions = useMemo(
+    () => destGroups.map((g) => ({ value: g.slug, label: g.title })),
+    [destGroups]
+  );
+
+  const columns: EntityColumn<DestData>[] = [
+    {
+      key: "destination",
+      header: "Destination",
+      cell: (d) => (
+        <div className="flex items-center gap-3">
+          {d.image && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={d.image}
+              alt=""
+              className="h-9 w-14 rounded-md object-cover"
+            />
+          )}
+          <div className="min-w-0">
+            <p className="text-sm font-medium truncate">{d.name}</p>
+            <p className="text-xs font-mono text-muted-foreground truncate">
+              /{d.slug}
+            </p>
+          </div>
+        </div>
+      ),
+    },
+    {
+      key: "tagline",
+      header: "Tagline",
+      cell: (d) => (
+        <span className="text-sm text-muted-foreground line-clamp-1">
+          {d.tagline}
+        </span>
+      ),
+    },
+    {
+      key: "best",
+      header: "Best Time",
+      cell: (d) => <span className="text-sm">{d.bestTime}</span>,
+    },
+    {
+      key: "order",
+      header: "Order",
+      cell: (d) => <span className="text-sm">{d.sortOrder}</span>,
+    },
+    {
+      key: "status",
+      header: "Status",
+      cell: (d) => <StatusBadge active={d.isActive} />,
+    },
+    {
+      key: "actions",
+      header: "",
+      headClassName: "text-right",
+      className: "text-right",
+      cell: (d) => (
+        <div className="flex items-center justify-end gap-1">
+          <Button variant="ghost" size="sm" onClick={() => openEdit(d)}>
+            <RiEditLine className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-destructive hover:text-destructive"
+            onClick={() => setDeleteId(d.id!)}
+          >
+            <RiDeleteBinLine className="h-4 w-4" />
+          </Button>
+        </div>
+      ),
+    },
+  ];
+
+  const sections: EntitySheetSection[] = [
+    {
+      id: "content",
+      label: "Content",
+      icon: RiArticleLine,
+      description: "Name, tagline and the descriptive copy.",
+      content: (
+        <div className="space-y-5">
+          <FieldGrid cols={2}>
+            <Field label="Name" required>
+              <Input
+                value={form.name}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, name: e.target.value }))
+                }
+                placeholder="Spiti Valley"
+              />
+            </Field>
+            <Field label="Slug" hint="Auto-generated from name.">
+              <Input
+                value={form.slug}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, slug: e.target.value }))
+                }
+                placeholder="spiti-valley"
+              />
+            </Field>
+            <Field label="Tagline" required>
+              <Input
+                value={form.tagline}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, tagline: e.target.value }))
+                }
+                placeholder="The Middle Land"
+              />
+            </Field>
+            <Field label="Vibe">
+              <Input
+                value={form.vibe}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, vibe: e.target.value }))
+                }
+                placeholder="Adventure & Spiritual"
+              />
+            </Field>
+            <Field label="Best Time">
+              <Input
+                value={form.bestTime}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, bestTime: e.target.value }))
+                }
+                placeholder="June to October"
+              />
+            </Field>
+            <Field label="Altitude">
+              <Input
+                value={form.altitude}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, altitude: e.target.value }))
+                }
+                placeholder="12,500 ft"
+              />
+            </Field>
+            <Field label="Sort Order" hint="Lower numbers appear first.">
+              <Input
+                type="number"
+                value={form.sortOrder}
+                onChange={(e) =>
+                  setForm((f) => ({
+                    ...f,
+                    sortOrder: Number(e.target.value),
+                  }))
+                }
+              />
+            </Field>
+          </FieldGrid>
+
+          <Field label="Description" required>
+            <Textarea
+              value={form.description}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, description: e.target.value }))
+              }
+              rows={5}
+            />
+          </Field>
+
+          <Field
+            label="Nav Groups"
+            hint="Tag this destination so it shows up in matching navbar groups."
+          >
+            <BadgeMultiSelect
+              options={groupOptions}
+              value={form.categories}
+              onChange={(v) => setForm((f) => ({ ...f, categories: v }))}
+              emptyHint="No destination nav groups yet."
+            />
+          </Field>
+        </div>
+      ),
+    },
+    {
+      id: "media",
+      label: "Media",
+      icon: RiImageLine,
+      description: "Hero image used on the destination page.",
+      content: (
+        <Field label="Cover Image" required>
+          <ImageUpload
+            value={form.image}
+            onChange={(url) => setForm((f) => ({ ...f, image: url }))}
+            folder="destinations"
+          />
+        </Field>
+      ),
+    },
+    {
+      id: "highlights",
+      label: "Highlights",
+      icon: RiStarLine,
+      description: "Bullet points showcased on the page.",
+      badge:
+        form.highlights.length > 0 ? (
+          <Badge variant="secondary" className="h-4 px-1 text-[10px]">
+            {form.highlights.length}
+          </Badge>
+        ) : undefined,
+      content: (
+        <Field label="Highlights" hint="Short bullet points to call out.">
+          <ListEditor
+            value={form.highlights}
+            onChange={(v) => setForm((f) => ({ ...f, highlights: v }))}
+            placeholder="e.g. Key Monastery"
+            addLabel="Add highlight"
+          />
+        </Field>
+      ),
+    },
+    {
+      id: "seo",
+      label: "SEO",
+      icon: RiSearchLine,
+      description: "Meta tags and search preview.",
+      content: (
+        <MetaFields
+          value={{
+            metaTitle: form.metaTitle,
+            metaDescription: form.metaDescription,
+            metaKeywords: form.metaKeywords,
+          }}
+          onChange={(m) =>
+            setForm((f) => ({
+              ...f,
+              metaTitle: m.metaTitle ?? "",
+              metaDescription: m.metaDescription ?? "",
+              metaKeywords: m.metaKeywords ?? "",
+            }))
+          }
+          fallbackTitle={form.name}
+          fallbackDescription={form.description || form.tagline}
+        />
+      ),
+    },
+    {
+      id: "settings",
+      label: "Settings",
+      icon: RiSettings4Line,
+      content: (
+        <div className="space-y-3">
+          <ToggleRow
+            label="Active"
+            description="Hide from the public site without deleting."
+            checked={form.isActive}
+            onCheckedChange={(v) => setForm((f) => ({ ...f, isActive: v }))}
+          />
+        </div>
+      ),
+    },
+  ];
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div><h1 className="text-3xl font-bold tracking-tight">Destinations</h1><p className="text-muted-foreground mt-1">Manage travel destinations</p></div>
-        <Button onClick={openCreate} className="gap-2"><RiAddLine className="w-4 h-4" /> Add Destination</Button>
-      </div>
+      <PageHeader
+        title="Destinations"
+        description="Manage destinations, hero copy and SEO."
+        actions={
+          <Button onClick={openCreate} className="gap-2">
+            <RiAddLine className="h-4 w-4" /> Add Destination
+          </Button>
+        }
+      />
 
-      <Card><CardContent className="p-0">
-        <Table>
-          <TableHeader><TableRow>
-            <TableHead>Destination</TableHead><TableHead>Tagline</TableHead><TableHead>Best Time</TableHead><TableHead>Status</TableHead><TableHead className="text-right">Actions</TableHead>
-          </TableRow></TableHeader>
-          <TableBody>
-            {loading ? <TableRow><TableCell colSpan={5} className="text-center py-10 text-muted-foreground">Loading...</TableCell></TableRow>
-            : items.length === 0 ? <TableRow><TableCell colSpan={5} className="text-center py-10 text-muted-foreground">No destinations yet.</TableCell></TableRow>
-            : items.map((item) => (
-              <TableRow key={item.id}>
-                <TableCell><div className="flex items-center gap-3">{item.image && <img src={item.image} alt="" className="w-12 h-8 rounded-md object-cover" />}<div><p className="font-medium text-sm">{item.name}</p><p className="text-xs text-muted-foreground">{item.slug}</p></div></div></TableCell>
-                <TableCell className="text-sm">{item.tagline}</TableCell>
-                <TableCell className="text-sm">{item.bestTime}</TableCell>
-                <TableCell><Badge variant={item.isActive ? "default" : "secondary"} className="text-xs">{item.isActive ? "Active" : "Draft"}</Badge></TableCell>
-                <TableCell className="text-right"><div className="flex items-center justify-end gap-1"><Button variant="ghost" size="sm" onClick={() => openEdit(item)}><RiEditLine className="w-4 h-4" /></Button><Button variant="ghost" size="sm" className="text-destructive" onClick={() => setDeleteId(item.id!)}><RiDeleteBinLine className="w-4 h-4" /></Button></div></TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </CardContent></Card>
+      <EntityTable
+        data={items}
+        columns={columns}
+        loading={loading}
+        rowKey={(d) => d.id ?? d.slug}
+        emptyTitle="No destinations yet"
+        emptyDescription="Add your first destination to see it here."
+      />
 
-      <Sheet open={dialogOpen} onOpenChange={setDialogOpen}>
-        <SheetContent className="w-full sm:max-w-2xl overflow-y-auto p-0 flex flex-col">
-          <SheetHeader className="p-6 pb-0"><SheetTitle>{form.id ? "Edit" : "Create"} Destination</SheetTitle><SheetDescription>Add or edit destination details and SEO.</SheetDescription></SheetHeader>
-          <div className="flex-1 overflow-y-auto px-6 py-4 space-y-5">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2"><Label>Name *</Label><Input value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} /></div>
-              <div className="space-y-2"><Label>Slug</Label><Input value={form.slug} onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))} placeholder="auto-generated" /></div>
-              <div className="space-y-2"><Label>Tagline *</Label><Input value={form.tagline} onChange={(e) => setForm((f) => ({ ...f, tagline: e.target.value }))} placeholder="The Middle Land" /></div>
-              <div className="space-y-2"><Label>Vibe</Label><Input value={form.vibe} onChange={(e) => setForm((f) => ({ ...f, vibe: e.target.value }))} placeholder="Adventure & Spiritual" /></div>
-              <div className="space-y-2"><Label>Best Time</Label><Input value={form.bestTime} onChange={(e) => setForm((f) => ({ ...f, bestTime: e.target.value }))} placeholder="June to October" /></div>
-              <div className="space-y-2"><Label>Altitude</Label><Input value={form.altitude} onChange={(e) => setForm((f) => ({ ...f, altitude: e.target.value }))} placeholder="12,500 ft" /></div>
-              <div className="space-y-2"><Label>Sort Order</Label><Input type="number" value={form.sortOrder} onChange={(e) => setForm((f) => ({ ...f, sortOrder: Number(e.target.value) }))} /></div>
-            </div>
-            <div className="space-y-2"><Label>Description *</Label><Textarea value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} rows={4} /></div>
-            <div className="space-y-2"><Label>Image</Label><ImageUpload value={form.image} onChange={(url) => setForm((f) => ({ ...f, image: url }))} folder="destinations" /></div>
+      <EntitySheet
+        open={sheetOpen}
+        onOpenChange={setSheetOpen}
+        title={form.id ? "Edit Destination" : "Create Destination"}
+        description="Set up the destination content, image, highlights and SEO."
+        sections={sections}
+        saving={saving}
+        saveLabel={form.id ? "Save changes" : "Create destination"}
+        onSave={handleSave}
+        footerLeft={
+          form.name ? (
+            <span className="inline-flex items-center gap-1.5">
+              <RiMapPinLine className="h-3 w-3" />
+              {form.name}
+            </span>
+          ) : null
+        }
+      />
 
-            <div className="space-y-3">
-              <Label>Categories (Groups)</Label>
-              <div className="flex flex-wrap gap-2">
-                {destGroups.map((group) => (
-                  <Badge 
-                    key={group.slug} 
-                    variant={form.categories?.includes(group.slug) ? "default" : "outline"}
-                    className="cursor-pointer"
-                    onClick={() => {
-                      const cats = form.categories || [];
-                      setForm(f => ({
-                        ...f,
-                        categories: cats.includes(group.slug) ? cats.filter(c => c !== group.slug) : [...cats, group.slug]
-                      }));
-                    }}
-                  >
-                    {group.title}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <div className="flex items-center justify-between"><Label>Highlights</Label><Button type="button" variant="outline" size="sm" onClick={() => setForm((f) => ({ ...f, highlights: [...f.highlights, ""] }))} className="gap-1"><RiAddCircleLine className="w-4 h-4" /> Add</Button></div>
-              {form.highlights.map((h, i) => (
-                <div key={i} className="flex gap-2"><Input value={h} onChange={(e) => setForm((f) => ({ ...f, highlights: f.highlights.map((v, idx) => idx === i ? e.target.value : v) }))} placeholder="Key Monastery" /><Button type="button" variant="ghost" size="sm" className="text-destructive" onClick={() => setForm((f) => ({ ...f, highlights: f.highlights.filter((_, idx) => idx !== i) }))}><RiCloseLine className="w-4 h-4" /></Button></div>
-              ))}
-            </div>
-
-            <div className="flex items-center gap-2"><Switch checked={form.isActive} onCheckedChange={(v) => setForm((f) => ({ ...f, isActive: v }))} /><Label>Active</Label></div>
-
-            <Separator />
-            <div className="space-y-4">
-              <Label className="text-base font-semibold">SEO</Label>
-              <div className="space-y-2"><Label className="text-xs text-muted-foreground">Meta Title</Label><Input value={form.metaTitle} onChange={(e) => setForm((f) => ({ ...f, metaTitle: e.target.value }))} /></div>
-              <div className="space-y-2"><Label className="text-xs text-muted-foreground">Meta Description</Label><Textarea value={form.metaDescription} onChange={(e) => setForm((f) => ({ ...f, metaDescription: e.target.value }))} rows={2} /></div>
-              <div className="space-y-2"><Label className="text-xs text-muted-foreground">Meta Keywords</Label><Input value={form.metaKeywords} onChange={(e) => setForm((f) => ({ ...f, metaKeywords: e.target.value }))} /></div>
-            </div>
-          </div>
-          <SheetFooter className="p-6 pt-4 border-t"><Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button><Button onClick={handleSave} disabled={saving}>{saving ? "Saving..." : "Save"}</Button></SheetFooter>
-        </SheetContent>
-      </Sheet>
-
-      <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
-        <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Delete Destination?</AlertDialogTitle><AlertDialogDescription>This action cannot be undone.</AlertDialogDescription></AlertDialogHeader>
-        <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={handleDelete} className="bg-destructive text-white hover:bg-destructive/90">Delete</AlertDialogAction></AlertDialogFooter></AlertDialogContent>
-      </AlertDialog>
+      <ConfirmDelete
+        open={!!deleteId}
+        onOpenChange={() => setDeleteId(null)}
+        title="Delete this destination?"
+        description="The destination will be permanently removed."
+        onConfirm={handleDelete}
+      />
     </div>
   );
 }

@@ -8,7 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { RiSettings4Line, RiSaveLine, RiGlobalLine, RiLayoutTopLine, RiContactsLine, RiInformationLine, RiCustomerService2Line } from "react-icons/ri";
+import { RiSaveLine, RiGlobalLine, RiLayoutTopLine, RiContactsLine, RiInformationLine, RiCustomerService2Line } from "react-icons/ri";
+import { PageHeader } from "@/components/admin/shared/PageHeader";
 
 export default function SettingsPage() {
   const [settings, setSettings] = useState<Record<string, string>>({});
@@ -32,17 +33,16 @@ export default function SettingsPage() {
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-            <RiSettings4Line className="w-8 h-8" /> Site Settings
-          </h1>
-          <p className="text-muted-foreground mt-1">Manage global content and SEO for your website</p>
-        </div>
-        <Button onClick={handleSave} disabled={saving} className="gap-2">
-          <RiSaveLine className="w-4 h-4" /> {saving ? "Saving..." : "Save Changes"}
-        </Button>
-      </div>
+      <PageHeader
+        title="Site Settings"
+        description="Manage global content, contact details and per-page hero copy."
+        actions={
+          <Button onClick={handleSave} disabled={saving} className="gap-2">
+            <RiSaveLine className="h-4 w-4" />
+            {saving ? "Saving..." : "Save changes"}
+          </Button>
+        }
+      />
 
       <Tabs defaultValue="general" className="w-full">
         <TabsList className="grid w-full grid-cols-4 lg:w-[600px]">

@@ -3,38 +3,8 @@
 import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
   SelectContent,
@@ -47,16 +17,30 @@ import {
   RiAddLine,
   RiEditLine,
   RiDeleteBinLine,
-  RiEyeLine,
-  RiEyeOffLine,
   RiStarFill,
   RiSearchLine,
   RiSettings4Line,
   RiArticleLine,
+  RiImageLine,
+  RiSuitcaseLine,
+  RiMapPinLine,
 } from "react-icons/ri";
-import { MultiSelect, MultiSelectOption } from "@/components/admin/shared/MultiSelect";
-import { FormSection } from "@/components/admin/shared/FormSection";
+import {
+  MultiSelect,
+  MultiSelectOption,
+} from "@/components/admin/shared/MultiSelect";
 import { MetaFields } from "@/components/admin/shared/MetaFields";
+import { PageHeader } from "@/components/admin/shared/PageHeader";
+import { EntityTable, EntityColumn } from "@/components/admin/shared/EntityTable";
+import {
+  EntitySheet,
+  EntitySheetSection,
+} from "@/components/admin/shared/EntitySheet";
+import { ConfirmDelete } from "@/components/admin/shared/ConfirmDelete";
+import { Field, FieldGrid } from "@/components/admin/shared/Field";
+import { ToggleRow } from "@/components/admin/shared/ToggleRow";
+import { StatusBadge } from "@/components/admin/shared/StatusBadge";
+import { ImageUpload } from "@/components/admin/ImageUpload";
 
 interface PackageOption {
   id: string;
@@ -208,7 +192,7 @@ export default function NavGroupsPage() {
       });
 
       if (res.ok) {
-        toast.success(isEdit ? "Group updated!" : "Group created!");
+        toast.success(isEdit ? "Group updated" : "Group created");
         setSheetOpen(false);
         fetchAll();
       } else {
@@ -229,7 +213,7 @@ export default function NavGroupsPage() {
         method: "DELETE",
       });
       if (res.ok) {
-        toast.success("Group deleted!");
+        toast.success("Group deleted");
         fetchAll();
       }
     } catch {
@@ -262,421 +246,367 @@ export default function NavGroupsPage() {
   );
 
   const selectedCount =
-    form.type === "package" ? form.packageIds.length : form.destinationIds.length;
+    form.type === "package"
+      ? form.packageIds.length
+      : form.destinationIds.length;
+
+  const columns: EntityColumn<NavGroupRow>[] = [
+    {
+      key: "title",
+      header: "Title",
+      cell: (page) => (
+        <div className="flex items-center gap-2">
+          <span className="font-medium">{page.title}</span>
+          {page.isFeatured && (
+            <RiStarFill className="h-3.5 w-3.5 text-amber-500" />
+          )}
+        </div>
+      ),
+    },
+    {
+      key: "slug",
+      header: "Slug",
+      cell: (p) => (
+        <span className="font-mono text-xs text-muted-foreground">
+          /{p.type === "package" ? "packages" : "destinations"}/{p.slug}
+        </span>
+      ),
+    },
+    {
+      key: "type",
+      header: "Type",
+      cell: (p) => (
+        <Badge variant="outline" className="gap-1 capitalize">
+          {p.type === "package" ? (
+            <RiSuitcaseLine className="h-3 w-3" />
+          ) : (
+            <RiMapPinLine className="h-3 w-3" />
+          )}
+          {p.type}
+        </Badge>
+      ),
+    },
+    {
+      key: "items",
+      header: "Items",
+      cell: (p) => {
+        const itemCount =
+          p.type === "package"
+            ? p.packages?.length ?? 0
+            : p.destinations?.length ?? 0;
+        return (
+          <span className="text-sm text-muted-foreground">
+            {itemCount}{" "}
+            {p.type === "package"
+              ? itemCount === 1
+                ? "package"
+                : "packages"
+              : itemCount === 1
+              ? "destination"
+              : "destinations"}
+          </span>
+        );
+      },
+    },
+    {
+      key: "order",
+      header: "Order",
+      cell: (p) => <span className="text-sm">{p.sortOrder}</span>,
+    },
+    {
+      key: "status",
+      header: "Status",
+      cell: (p) => <StatusBadge active={p.isActive} />,
+    },
+    {
+      key: "actions",
+      header: "",
+      headClassName: "text-right",
+      className: "text-right",
+      cell: (p) => (
+        <div className="flex items-center justify-end gap-1">
+          <Button variant="ghost" size="sm" onClick={() => openEdit(p)}>
+            <RiEditLine className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-destructive hover:text-destructive"
+            onClick={() => setDeleteId(p.id)}
+          >
+            <RiDeleteBinLine className="h-4 w-4" />
+          </Button>
+        </div>
+      ),
+    },
+  ];
+
+  const sections: EntitySheetSection[] = [
+    {
+      id: "content",
+      label: "Content",
+      icon: RiArticleLine,
+      description: "Title, slug and the copy that appears on the landing page.",
+      content: (
+        <div className="space-y-5">
+          <FieldGrid cols={2}>
+            <Field label="Type" required hint="Where the group appears on site.">
+              <Select
+                value={form.type}
+                onValueChange={(v) =>
+                  setForm((f) => ({
+                    ...f,
+                    type: v as "package" | "destination",
+                  }))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="package">Packages</SelectItem>
+                  <SelectItem value="destination">Destinations</SelectItem>
+                </SelectContent>
+              </Select>
+            </Field>
+            <Field
+              label="Display Title"
+              required
+              hint="Shown in the navbar and on the landing page hero."
+            >
+              <Input
+                value={form.title}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, title: e.target.value }))
+                }
+                placeholder="e.g. Honeymoon Specials"
+              />
+            </Field>
+            <Field
+              label="Slug"
+              hint="Auto-generated from title if left blank."
+            >
+              <Input
+                value={form.slug}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, slug: e.target.value }))
+                }
+                placeholder="honeymoon-specials"
+              />
+            </Field>
+            <Field label="Sort Order" hint="Lower numbers appear first.">
+              <Input
+                type="number"
+                value={form.sortOrder}
+                onChange={(e) =>
+                  setForm((f) => ({
+                    ...f,
+                    sortOrder: Number(e.target.value),
+                  }))
+                }
+              />
+            </Field>
+          </FieldGrid>
+
+          <Field label="Tagline" hint="Short tagline for the navbar dropdown.">
+            <Input
+              value={form.tagline}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, tagline: e.target.value }))
+              }
+              placeholder="One-liner for the navbar dropdown"
+            />
+          </Field>
+
+          <Field
+            label="Short Description"
+            hint="Intro paragraph above the listing."
+          >
+            <Textarea
+              value={form.description}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, description: e.target.value }))
+              }
+              rows={3}
+            />
+          </Field>
+
+          <Field
+            label="Long-form Content"
+            hint="Optional rich content rendered below the listing."
+          >
+            <Textarea
+              value={form.content}
+              onChange={(e) =>
+                setForm((f) => ({ ...f, content: e.target.value }))
+              }
+              rows={6}
+            />
+          </Field>
+        </div>
+      ),
+    },
+    {
+      id: "items",
+      label: form.type === "package" ? "Packages" : "Destinations",
+      icon: form.type === "package" ? RiSuitcaseLine : RiMapPinLine,
+      description:
+        form.type === "package"
+          ? "Curate which packages this group features and in what order."
+          : "Curate which destinations this group features and in what order.",
+      badge: selectedCount > 0 ? (
+        <Badge variant="secondary" className="h-4 px-1 text-[10px]">
+          {selectedCount}
+        </Badge>
+      ) : undefined,
+      content: (
+        <div className="space-y-3">
+          {form.type === "package" ? (
+            <MultiSelect
+              options={packageOptions}
+              value={form.packageIds}
+              onChange={(v) => setForm((f) => ({ ...f, packageIds: v }))}
+              placeholder="Click to add packages"
+              searchPlaceholder="Search packages by title or location..."
+              emptyText="No packages match. Try a different search."
+              noun="package"
+            />
+          ) : (
+            <MultiSelect
+              options={destinationOptions}
+              value={form.destinationIds}
+              onChange={(v) =>
+                setForm((f) => ({ ...f, destinationIds: v }))
+              }
+              placeholder="Click to add destinations"
+              searchPlaceholder="Search destinations by name..."
+              emptyText="No destinations match. Try a different search."
+              noun="destination"
+            />
+          )}
+          <p className="text-[11px] text-muted-foreground">
+            Tip: leave empty to fall back to category-based matching (legacy
+            behaviour using the items&rsquo; <code>categories</code> array).
+          </p>
+        </div>
+      ),
+    },
+    {
+      id: "media",
+      label: "Media",
+      icon: RiImageLine,
+      description: "Cover image used as the page hero and OG fallback.",
+      content: (
+        <Field label="Cover Image">
+          <ImageUpload
+            value={form.coverImage}
+            onChange={(url) =>
+              setForm((f) => ({ ...f, coverImage: url }))
+            }
+            folder="nav-groups"
+          />
+        </Field>
+      ),
+    },
+    {
+      id: "seo",
+      label: "SEO",
+      icon: RiSearchLine,
+      description: "Meta tags & social share preview.",
+      content: (
+        <MetaFields
+          value={{
+            metaTitle: form.metaTitle,
+            metaDescription: form.metaDescription,
+            metaKeywords: form.metaKeywords,
+            ogImage: form.ogImage,
+          }}
+          onChange={(m) =>
+            setForm((f) => ({
+              ...f,
+              metaTitle: m.metaTitle ?? "",
+              metaDescription: m.metaDescription ?? "",
+              metaKeywords: m.metaKeywords ?? "",
+              ogImage: m.ogImage ?? "",
+            }))
+          }
+          fallbackTitle={form.title || "Nav Group"}
+          fallbackDescription={form.description || form.tagline}
+        />
+      ),
+    },
+    {
+      id: "settings",
+      label: "Settings",
+      icon: RiSettings4Line,
+      description: "Visibility & highlight controls.",
+      content: (
+        <div className="space-y-3">
+          <ToggleRow
+            label="Show in Navbar"
+            description="When off, the group is hidden from the public site."
+            checked={form.isActive}
+            onCheckedChange={(v) => setForm((f) => ({ ...f, isActive: v }))}
+          />
+          <ToggleRow
+            label="Featured"
+            description="Highlights this group on the homepage and listings."
+            checked={form.isFeatured}
+            onCheckedChange={(v) =>
+              setForm((f) => ({ ...f, isFeatured: v }))
+            }
+          />
+        </div>
+      ),
+    },
+  ];
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Nav Groups</h1>
-          <p className="text-muted-foreground mt-1">
-            Curate package or destination groupings to feature in the navbar.
-          </p>
-        </div>
-        <Button onClick={openCreate} className="gap-2">
-          <RiAddLine className="w-4 h-4" /> Add Group
-        </Button>
-      </div>
+      <PageHeader
+        title="Nav Groups"
+        description="Curate package or destination groups that appear in the navbar."
+        actions={
+          <Button onClick={openCreate} className="gap-2">
+            <RiAddLine className="h-4 w-4" /> Add Group
+          </Button>
+        }
+      />
 
-      <Card>
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Title</TableHead>
-                <TableHead>Slug</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Items</TableHead>
-                <TableHead>Order</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {loading ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={7}
-                    className="text-center py-10 text-muted-foreground"
-                  >
-                    Loading...
-                  </TableCell>
-                </TableRow>
-              ) : pages.length === 0 ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={7}
-                    className="text-center py-10 text-muted-foreground"
-                  >
-                    No groups yet. Click &ldquo;Add Group&rdquo; to create one.
-                  </TableCell>
-                </TableRow>
-              ) : (
-                pages.map((page) => {
-                  const itemCount =
-                    page.type === "package"
-                      ? page.packages?.length ?? 0
-                      : page.destinations?.length ?? 0;
-                  return (
-                    <TableRow key={page.id}>
-                      <TableCell>
-                        <div className="flex items-center gap-2 font-medium">
-                          {page.title}
-                          {page.isFeatured && (
-                            <RiStarFill className="w-3.5 h-3.5 text-amber-500" />
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-sm font-mono text-muted-foreground">
-                        {page.slug}
-                      </TableCell>
-                      <TableCell className="capitalize">
-                        <Badge variant="outline">{page.type}</Badge>
-                      </TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
-                        {itemCount}{" "}
-                        {page.type === "package"
-                          ? itemCount === 1
-                            ? "package"
-                            : "packages"
-                          : itemCount === 1
-                          ? "destination"
-                          : "destinations"}
-                      </TableCell>
-                      <TableCell>{page.sortOrder}</TableCell>
-                      <TableCell>
-                        {page.isActive ? (
-                          <Badge variant="default" className="gap-1">
-                            <RiEyeLine className="w-3 h-3" /> Visible
-                          </Badge>
-                        ) : (
-                          <Badge variant="secondary" className="gap-1">
-                            <RiEyeOffLine className="w-3 h-3" /> Hidden
-                          </Badge>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-1">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => openEdit(page)}
-                          >
-                            <RiEditLine className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-destructive hover:text-destructive"
-                            onClick={() => setDeleteId(page.id!)}
-                          >
-                            <RiDeleteBinLine className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+      <EntityTable
+        data={pages}
+        columns={columns}
+        loading={loading}
+        rowKey={(p) => p.id}
+        emptyTitle="No groups yet"
+        emptyDescription='Click "Add Group" to create your first navbar group.'
+      />
 
-      <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-        <SheetContent className="w-full sm:max-w-2xl overflow-y-auto p-0">
-          <SheetHeader className="px-6 pt-6 pb-4 border-b">
-            <SheetTitle>
-              {form.id ? "Edit Nav Group" : "Create Nav Group"}
-            </SheetTitle>
-            <SheetDescription>
-              Configure how this group appears in the navbar, what it links to,
-              and how it shows in search.
-            </SheetDescription>
-          </SheetHeader>
+      <EntitySheet
+        open={sheetOpen}
+        onOpenChange={setSheetOpen}
+        title={form.id ? "Edit Nav Group" : "Create Nav Group"}
+        description="Configure how this group appears in the navbar, what it links to, and how it shows in search."
+        sections={sections}
+        saving={saving}
+        saveLabel={form.id ? "Save changes" : "Create group"}
+        onSave={handleSave}
+        footerLeft={
+          <span>
+            {selectedCount}{" "}
+            {form.type === "package" ? "package" : "destination"}
+            {selectedCount === 1 ? "" : "s"} selected
+          </span>
+        }
+      />
 
-          <Tabs defaultValue="content" className="px-6 py-5">
-            <TabsList className="w-full">
-              <TabsTrigger value="content" className="gap-1.5">
-                <RiArticleLine className="w-4 h-4" /> Content
-              </TabsTrigger>
-              <TabsTrigger value="seo" className="gap-1.5">
-                <RiSearchLine className="w-4 h-4" /> SEO
-              </TabsTrigger>
-              <TabsTrigger value="settings" className="gap-1.5">
-                <RiSettings4Line className="w-4 h-4" /> Settings
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="content" className="mt-5 space-y-5">
-              <FormSection
-                title="Basic Information"
-                description="The name, type and copy for this group."
-              >
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>Type *</Label>
-                    <Select
-                      value={form.type}
-                      onValueChange={(v) =>
-                        setForm((f) => ({
-                          ...f,
-                          type: v as "package" | "destination",
-                        }))
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="package">Packages</SelectItem>
-                        <SelectItem value="destination">Destinations</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <p className="text-[11px] text-muted-foreground">
-                      Where this group will appear in the navbar.
-                    </p>
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Display Title *</Label>
-                    <Input
-                      value={form.title}
-                      onChange={(e) =>
-                        setForm((f) => ({ ...f, title: e.target.value }))
-                      }
-                      placeholder="e.g. Honeymoon Specials"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Slug</Label>
-                    <Input
-                      value={form.slug}
-                      onChange={(e) =>
-                        setForm((f) => ({ ...f, slug: e.target.value }))
-                      }
-                      placeholder="auto-generated from title"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Sort Order</Label>
-                    <Input
-                      type="number"
-                      value={form.sortOrder}
-                      onChange={(e) =>
-                        setForm((f) => ({
-                          ...f,
-                          sortOrder: Number(e.target.value),
-                        }))
-                      }
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Tagline</Label>
-                  <Input
-                    value={form.tagline}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, tagline: e.target.value }))
-                    }
-                    placeholder="A short one-liner for the navbar dropdown"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Short Description</Label>
-                  <Textarea
-                    value={form.description}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, description: e.target.value }))
-                    }
-                    rows={3}
-                    placeholder="Intro shown above the listing on the landing page."
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Long-form Content</Label>
-                  <Textarea
-                    value={form.content}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, content: e.target.value }))
-                    }
-                    rows={6}
-                    placeholder="Optional long-form content shown on the landing page."
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Cover Image URL</Label>
-                  <Input
-                    type="url"
-                    value={form.coverImage}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, coverImage: e.target.value }))
-                    }
-                    placeholder="https://res.cloudinary.com/..."
-                  />
-                  {form.coverImage && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={form.coverImage}
-                      alt=""
-                      className="mt-2 h-32 rounded-md object-cover"
-                    />
-                  )}
-                </div>
-              </FormSection>
-
-              <FormSection
-                title={
-                  form.type === "package"
-                    ? "Packages in this Group"
-                    : "Destinations in this Group"
-                }
-                description={
-                  form.type === "package"
-                    ? "Search and select the tour packages you want to feature. Reorder using the arrows."
-                    : "Search and select the destinations you want to feature. Reorder using the arrows."
-                }
-              >
-                {form.type === "package" ? (
-                  <MultiSelect
-                    options={packageOptions}
-                    value={form.packageIds}
-                    onChange={(v) =>
-                      setForm((f) => ({ ...f, packageIds: v }))
-                    }
-                    placeholder="Choose packages..."
-                    searchPlaceholder="Search packages by title or location..."
-                    emptyText="No packages match. Try a different search."
-                  />
-                ) : (
-                  <MultiSelect
-                    options={destinationOptions}
-                    value={form.destinationIds}
-                    onChange={(v) =>
-                      setForm((f) => ({ ...f, destinationIds: v }))
-                    }
-                    placeholder="Choose destinations..."
-                    searchPlaceholder="Search destinations by name..."
-                    emptyText="No destinations match. Try a different search."
-                  />
-                )}
-                <p className="text-[11px] text-muted-foreground">
-                  Tip: leave empty to fall back to category-based matching
-                  (legacy behavior).
-                </p>
-              </FormSection>
-            </TabsContent>
-
-            <TabsContent value="seo" className="mt-5">
-              <MetaFields
-                value={{
-                  metaTitle: form.metaTitle,
-                  metaDescription: form.metaDescription,
-                  metaKeywords: form.metaKeywords,
-                  ogImage: form.ogImage,
-                }}
-                onChange={(m) =>
-                  setForm((f) => ({
-                    ...f,
-                    metaTitle: m.metaTitle ?? "",
-                    metaDescription: m.metaDescription ?? "",
-                    metaKeywords: m.metaKeywords ?? "",
-                    ogImage: m.ogImage ?? "",
-                  }))
-                }
-                fallbackTitle={form.title || "Nav Group"}
-                fallbackDescription={form.description || form.tagline}
-              />
-            </TabsContent>
-
-            <TabsContent value="settings" className="mt-5 space-y-5">
-              <FormSection
-                title="Visibility & Highlights"
-                description="Control whether this group appears on the public site."
-              >
-                <div className="flex items-start gap-3">
-                  <Switch
-                    checked={form.isActive}
-                    onCheckedChange={(v) =>
-                      setForm((f) => ({ ...f, isActive: v }))
-                    }
-                  />
-                  <div>
-                    <Label>Show in Navbar</Label>
-                    <p className="text-xs text-muted-foreground">
-                      When off, the group is hidden from the public site.
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <Switch
-                    checked={form.isFeatured}
-                    onCheckedChange={(v) =>
-                      setForm((f) => ({ ...f, isFeatured: v }))
-                    }
-                  />
-                  <div>
-                    <Label>Featured</Label>
-                    <p className="text-xs text-muted-foreground">
-                      Highlights this group in homepage and listing surfaces.
-                    </p>
-                  </div>
-                </div>
-              </FormSection>
-            </TabsContent>
-          </Tabs>
-
-          <SheetFooter className="px-6 py-4 border-t bg-background">
-            <div className="flex w-full items-center justify-between gap-3">
-              <span className="text-xs text-muted-foreground">
-                {form.type === "package"
-                  ? `${selectedCount} package${selectedCount === 1 ? "" : "s"} selected`
-                  : `${selectedCount} destination${selectedCount === 1 ? "" : "s"} selected`}
-              </span>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  onClick={() => setSheetOpen(false)}
-                  disabled={saving}
-                >
-                  Cancel
-                </Button>
-                <Button onClick={handleSave} disabled={saving}>
-                  {saving ? "Saving..." : "Save Group"}
-                </Button>
-              </div>
-            </div>
-          </SheetFooter>
-        </SheetContent>
-      </Sheet>
-
-      <AlertDialog
+      <ConfirmDelete
         open={!!deleteId}
         onOpenChange={() => setDeleteId(null)}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Group?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This removes the group from the Navbar. The packages and
-              destinations inside will not be affected. This action cannot be
-              undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDelete}
-              className="bg-destructive text-white hover:bg-destructive/90"
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        title="Delete this nav group?"
+        description="This removes the group from the navbar. The packages and destinations inside are not affected."
+        onConfirm={handleDelete}
+      />
     </div>
   );
 }

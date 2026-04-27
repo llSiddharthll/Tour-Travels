@@ -7,9 +7,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { RiEyeLine, RiDeleteBinLine, RiMailLine, RiPhoneLine } from "react-icons/ri";
+import { RiEyeLine, RiDeleteBinLine, RiPhoneLine } from "react-icons/ri";
+import { PageHeader } from "@/components/admin/shared/PageHeader";
+import { ConfirmDelete } from "@/components/admin/shared/ConfirmDelete";
 
 interface InquiryData {
   id: string; 
@@ -59,7 +60,10 @@ export default function InquiriesPage() {
 
   return (
     <div className="space-y-6">
-      <div><h1 className="text-3xl font-bold tracking-tight">Inquiries</h1><p className="text-muted-foreground mt-1">Manage contact form submissions</p></div>
+      <PageHeader
+        title="Inquiries"
+        description="Customer contact form submissions and booking requests."
+      />
       <Card><CardContent className="p-0"><Table><TableHeader><TableRow>
         <TableHead>Customer</TableHead><TableHead>Contact</TableHead><TableHead>Route</TableHead><TableHead>Date</TableHead><TableHead>Status</TableHead><TableHead className="text-right">Actions</TableHead>
       </TableRow></TableHeader>
@@ -125,10 +129,12 @@ export default function InquiriesPage() {
         </SheetContent>
       </Sheet>
 
-      <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
-        <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Delete Inquiry?</AlertDialogTitle><AlertDialogDescription>This cannot be undone.</AlertDialogDescription></AlertDialogHeader>
-        <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={handleDelete} className="bg-destructive text-white hover:bg-destructive/90">Delete</AlertDialogAction></AlertDialogFooter></AlertDialogContent>
-      </AlertDialog>
+      <ConfirmDelete
+        open={!!deleteId}
+        onOpenChange={() => setDeleteId(null)}
+        title="Delete this inquiry?"
+        onConfirm={handleDelete}
+      />
     </div>
   );
 }
