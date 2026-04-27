@@ -29,6 +29,7 @@ import {
   RiLogoutBoxLine,
   RiLandscapeLine,
   RiCompass3Line,
+  RiSparkling2Line,
 } from "react-icons/ri";
 
 interface NavItem {
@@ -64,6 +65,7 @@ const navGroups: NavGroup[] = [
     label: "Content",
     items: [
       { title: "Nav Groups", href: "/admin/nav-groups", icon: RiCompass3Line },
+      { title: "Why Choose Us", href: "/admin/why-choose-us", icon: RiSparkling2Line },
       { title: "Blogs", href: "/admin/blogs", icon: RiArticleLine },
       { title: "Testimonials", href: "/admin/testimonials", icon: RiStarLine },
     ],

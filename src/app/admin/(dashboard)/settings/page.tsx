@@ -10,18 +10,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { RiSaveLine, RiGlobalLine, RiLayoutTopLine, RiContactsLine, RiInformationLine, RiCustomerService2Line } from "react-icons/ri";
 import { PageHeader } from "@/components/admin/shared/PageHeader";
-import { FeaturesEditor, FeatureItem } from "@/components/admin/shared/FeaturesEditor";
-
-function parseFeatures(raw?: string): FeatureItem[] {
-  if (!raw) return [];
-  try {
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? (parsed as FeatureItem[]) : [];
-  } catch {
-    return [];
-  }
-}
-
 export default function SettingsPage() {
   const [settings, setSettings] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
@@ -162,21 +150,21 @@ export default function SettingsPage() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="border-dashed">
             <CardHeader>
               <CardTitle>Why Choose Himvigo (Homepage Features)</CardTitle>
               <CardDescription>
-                Cards shown in the &ldquo;Why Choose Himvigo&rdquo; section. The
-                first card is the one that opens by default on the homepage.
+                The cards shown in the homepage &ldquo;Why Choose Himvigo&rdquo;
+                section now live on their own page.
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <FeaturesEditor
-                value={parseFeatures(settings.why_choose_us_json)}
-                onChange={(next) =>
-                  updateSetting("why_choose_us_json", JSON.stringify(next))
-                }
-              />
+              <a
+                href="/admin/why-choose-us"
+                className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+              >
+                Open Why Choose Us editor →
+              </a>
             </CardContent>
           </Card>
 
