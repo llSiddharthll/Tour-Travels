@@ -65,10 +65,10 @@ export default function RegionSlider({ destinations = [] }: { destinations: Dest
         {slideItems.map((dest, i) => (
           <SwiperSlide key={i} className="h-full !w-[300px] md:!w-[380px]">
             <Link href={`/destinations/${dest.slug}`} className="block w-full h-[350px] md:h-[450px] rounded-3xl overflow-hidden relative group cursor-pointer shadow-xl border border-white/10 select-none">
-              <div className="absolute inset-0 bg-slate-900/40 group-hover:bg-slate-900/10 transition-colors duration-500 z-10" />
+              <div className="absolute inset-0 bg-slate-900/15 group-hover:bg-slate-900/0 transition-colors duration-500 z-10" />
               <img src={dest.image} className="w-full h-full object-cover transition-transform duration-[3000ms] group-hover:scale-110" alt={dest.name} />
-              
-              <div className="absolute inset-0 z-20 bg-gradient-to-t from-slate-950 via-slate-900/50 to-transparent flex flex-col justify-end p-6 md:p-8 transition-opacity duration-300">
+
+              <div className="absolute inset-0 z-20 bg-gradient-to-t from-slate-950/80 via-slate-950/15 to-transparent flex flex-col justify-end p-6 md:p-8 transition-opacity duration-300">
                 <span className="text-amber-400 font-bold tracking-widest text-[10px] md:text-xs uppercase mb-2 md:mb-3 transform translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500 drop-shadow-md">
                   {dest.tagline}
                 </span>
