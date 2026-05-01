@@ -57,16 +57,13 @@ export async function generateMetadata(): Promise<Metadata> {
     alternates: {
       canonical: "/",
     },
-    icons: {
-      icon: [{ url: "/favicon.png" }, { url: "/icon.svg", type: "image/svg+xml" }],
-      apple: [{ url: "/favicon.png" }],
-      other: [
-        {
-          rel: "apple-touch-icon-precomposed",
-          url: "/favicon.png",
-        },
-      ],
-    },
+    // Favicon resolution is delegated to Next's file conventions:
+    //   src/app/favicon.ico     → standard browser tab icon
+    //   src/app/icon.svg        → high-res SVG (Google/light + dark mode)
+    //   src/app/apple-icon.ico  → iOS home-screen icon
+    // The previous manual block referenced /favicon.png (484×269,
+    // non-square) which made search engines fall back to a default
+    // logo. Removing it lets Next generate the right <link> tags.
     openGraph: {
       type: "website",
       locale: "en_IN",

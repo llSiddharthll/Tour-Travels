@@ -30,7 +30,11 @@ import { Field } from "./Field";
 export interface FeatureItem {
   title: string;
   desc: string;
+  /** Small icon image shown at the top of the card. Preferred. */
+  iconImage?: string;
+  /** Legacy: larger background image. Used as a fallback if iconImage is missing. */
   image: string;
+  /** Legacy: Ri icon name. Used only if neither iconImage nor image is present. */
   icon?: string;
 }
 
@@ -152,48 +156,57 @@ export function FeaturesEditor({ value, onChange }: Props) {
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-[1fr_180px]">
               <div className="space-y-3">
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-[1fr_180px]">
-                  <Field label="Title" required>
-                    <Input
-                      value={f.title}
-                      onChange={(e) => update(i, "title", e.target.value)}
-                      placeholder="Verified Drivers"
-                    />
-                  </Field>
-                  <Field label="Icon">
-                    <Select
-                      value={f.icon || "RiCompass3Line"}
-                      onValueChange={(v) => update(i, "icon", v)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {ICON_CHOICES.map((c) => (
-                          <SelectItem key={c.value} value={c.value}>
-                            <span className="flex items-center gap-2">
-                              <c.icon className="h-3.5 w-3.5" />
-                              {c.label}
-                            </span>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </Field>
-                </div>
+                <Field label="Title" required>
+                  <Input
+                    value={f.title}
+                    onChange={(e) => update(i, "title", e.target.value)}
+                    placeholder="Verified Drivers"
+                  />
+                </Field>
                 <Field label="Description" required>
                   <Textarea
                     value={f.desc}
                     onChange={(e) => update(i, "desc", e.target.value)}
                     rows={3}
-                    placeholder="Short description shown when this card is open."
+                    placeholder="Short description shown under the title."
                   />
                 </Field>
+                <Field
+                  label="Fallback icon"
+                  hint="Used if no icon image is uploaded."
+                >
+                  <Select
+                    value={f.icon || "RiCompass3Line"}
+                    onValueChange={(v) => update(i, "icon", v)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {ICON_CHOICES.map((c) => (
+                        <SelectItem key={c.value} value={c.value}>
+                          <span className="flex items-center gap-2">
+                            <c.icon className="h-3.5 w-3.5" />
+                            {c.label}
+                          </span>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Field>
               </div>
-              <Field label="Image" required>
+              <Field
+                label="Icon image"
+                required
+                hint="Square image (PNG/SVG). Shown as the card icon."
+              >
                 <ImageUpload
-                  value={f.image}
-                  onChange={(url) => update(i, "image", url)}
+                  value={f.iconImage || f.image}
+                  onChange={(url) => {
+                    update(i, "iconImage", url);
+                    // Keep legacy `image` mirrored so older renderers still work.
+                    update(i, "image", url);
+                  }}
                   folder="features"
                 />
               </Field>

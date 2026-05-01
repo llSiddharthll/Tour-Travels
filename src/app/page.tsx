@@ -7,20 +7,14 @@ import BlogSection from "@/components/home/BlogSection";
 import HeroSlider from "@/components/home/HeroSlider";
 import { WhyChooseUs, Feature } from "@/components/home/WhyChooseUs";
 import { ServiceCard } from "@/components/home/ServiceCard";
+import { ServiceItem } from "@/components/admin/shared/ServicesEditor";
 import { getFeaturedPackages } from "@/lib/db/packages";
 import { getAllDestinations } from "@/lib/db/destinations";
 import { getLatestBlogs } from "@/lib/db/blogs";
 import { getAllTestimonials } from "@/lib/db/testimonials";
 import { getAllActivities } from "@/lib/db/activities";
 import { BottomCTA } from "@/components/ui/BottomCTA";
-import {
-  RiArrowRightLine,
-  RiCompass3Line,
-  RiCarLine,
-  RiGroupLine,
-  RiNavigationLine,
-  RiPhoneLine,
-} from "react-icons/ri";
+import { RiArrowRightLine, RiPhoneLine } from "react-icons/ri";
 import Link from "next/link";
 import { getSettings } from "@/lib/db/settings";
 
@@ -61,42 +55,31 @@ export default async function HomePage() {
   }
   if (features.length === 0) {
     features = [
-      {
-        title: "Verified Drivers",
-        desc: "Every driver is background-checked and skilled in navigating Himachal's mountain roads safely.",
-        image: "/hero-1.png",
-        icon: "RiShieldCheckLine",
-      },
-      {
-        title: "100% Local Experts",
-        desc: "Our guides are born and raised in the Himalayas. They know the hidden trails, the local legends, and the best ways to keep you safe.",
-        image: "/hero-2.png",
-        icon: "RiGroupLine",
-      },
-      {
-        title: "Award Winning",
-        desc: "Recognised by Himachal Tourism for service quality and safety standards.",
-        image: "/hero-3.png",
-        icon: "RiTrophyLine",
-      },
-      {
-        title: "Curated Itineraries",
-        desc: "Hand-built journeys that balance adventure, culture and downtime.",
-        image: "/hero-4.png",
-        icon: "RiCompass3Line",
-      },
-      {
-        title: "Comfortable Vehicles",
-        desc: "Modern fleet maintained for long mountain drives with experienced chauffeurs.",
-        image: "/hero-5.png",
-        icon: "RiCarLine",
-      },
-      {
-        title: "Flexible Booking",
-        desc: "Easy rescheduling and transparent pricing — pay only for what you use.",
-        image: "/hero-6.png",
-        icon: "RiCheckboxCircleLine",
-      },
+      { title: "Verified Drivers", desc: "Every driver is background-checked and skilled in navigating Himachal's mountain roads safely.", image: "/hero-1.png", icon: "RiShieldCheckLine" },
+      { title: "100% Local Experts", desc: "Our guides are born and raised in the Himalayas. They know the hidden trails, the local legends, and the best ways to keep you safe.", image: "/hero-2.png", icon: "RiGroupLine" },
+      { title: "Award Winning", desc: "Recognised by Himachal Tourism for service quality and safety standards.", image: "/hero-3.png", icon: "RiTrophyLine" },
+      { title: "Curated Itineraries", desc: "Hand-built journeys that balance adventure, culture and downtime.", image: "/hero-4.png", icon: "RiCompass3Line" },
+      { title: "Comfortable Vehicles", desc: "Modern fleet maintained for long mountain drives with experienced chauffeurs.", image: "/hero-5.png", icon: "RiCarLine" },
+      { title: "Flexible Booking", desc: "Easy rescheduling and transparent pricing — pay only for what you use.", image: "/hero-6.png", icon: "RiCheckboxCircleLine" },
+    ];
+  }
+
+  // Services ("What We Do") — admin-driven, with sensible fallbacks.
+  let services: ServiceItem[] = [];
+  if (settings.services_json) {
+    try {
+      const parsed = JSON.parse(settings.services_json);
+      if (Array.isArray(parsed)) services = parsed;
+    } catch {
+      services = [];
+    }
+  }
+  if (services.length === 0) {
+    services = [
+      { title: "Tour Packages", description: settings.service_packages_desc || "Thoughtfully planned itineraries covering Himachal's most loved destinations.", image: "/hero-spiti.png", icon: "", ctaLabel: "View packages", ctaHref: "/packages", accent: "blue" },
+      { title: "Cab Services", description: settings.service_cab_desc || "Reliable cab service across Himachal Pradesh with verified, experienced drivers.", image: "/cab-fleet.png", icon: "", ctaLabel: "Book a cab", ctaHref: "/cab", accent: "orange" },
+      { title: "Tempo Traveller", description: settings.service_tempo_desc || "Traveling with a group? Our tempo travellers seat 9 to 26 passengers comfortably.", image: "/taxi-hero.png", icon: "", ctaLabel: "Inquire for group", ctaHref: "/contact", accent: "blue" },
+      { title: "Custom Travel Plans", description: settings.service_custom_desc || "Not finding what you're looking for? Tell us what you have in mind.", image: "/dharamshala.png", icon: "", ctaLabel: "Create itinerary", ctaHref: "/contact", accent: "orange" },
     ];
   }
 
@@ -265,54 +248,18 @@ export default async function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
-            <ServiceCard
-              title="Tour Packages"
-              description={
-                settings.service_packages_desc ||
-                "Thoughtfully planned itineraries covering Himachal's most loved destinations."
-              }
-              href="/packages"
-              ctaLabel="View packages"
-              image="/hero-spiti.png"
-              icon={<RiCompass3Line className="w-6 h-6" />}
-              accent="blue"
-            />
-            <ServiceCard
-              title="Cab Services"
-              description={
-                settings.service_cab_desc ||
-                "Reliable cab service across Himachal Pradesh with verified, experienced drivers."
-              }
-              href="/cab"
-              ctaLabel="Book a cab"
-              image="/cab-fleet.png"
-              icon={<RiCarLine className="w-6 h-6" />}
-              accent="orange"
-            />
-            <ServiceCard
-              title="Tempo Traveller"
-              description={
-                settings.service_tempo_desc ||
-                "Traveling with a group? Our tempo travellers seat 9 to 26 passengers comfortably."
-              }
-              href="/contact"
-              ctaLabel="Inquire for group"
-              image="/taxi-hero.png"
-              icon={<RiGroupLine className="w-6 h-6" />}
-              accent="blue"
-            />
-            <ServiceCard
-              title="Custom Travel Plans"
-              description={
-                settings.service_custom_desc ||
-                "Not finding what you're looking for? Tell us what you have in mind."
-              }
-              href="/contact"
-              ctaLabel="Create itinerary"
-              image="/dharamshala.png"
-              icon={<RiNavigationLine className="w-6 h-6" />}
-              accent="orange"
-            />
+            {services.map((s, i) => (
+              <ServiceCard
+                key={i}
+                title={s.title}
+                description={s.description}
+                href={s.ctaHref}
+                ctaLabel={s.ctaLabel}
+                image={s.image}
+                iconImage={s.icon}
+                accent={s.accent}
+              />
+            ))}
           </div>
         </div>
       </section>
