@@ -178,7 +178,7 @@ export default async function HomePage() {
                   "Safe rides. Local expertise. Unforgettable journeys through the heart of the Himalayas."}
               </p>
 
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3">
+              <div className="mb-16 md:mb-24 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3">
                 <Link
                   href="/packages"
                   className="group inline-flex items-center justify-center gap-2 rounded-full bg-brand-orange px-6 py-3 font-bold text-white shadow-xl shadow-brand-orange/30 transition-all duration-300 hover:bg-brand-orange/90 hover:-translate-y-0.5 font-outfit"

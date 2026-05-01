@@ -67,7 +67,7 @@ export const SearchFilter = () => {
   return (
     <div className="w-full max-w-5xl mx-auto drop-shadow-2xl">
       {/* Tabs */}
-      <div className="flex items-center gap-1 md:gap-2 mb-2 ml-4 w-full overflow-x-auto pb-1 pr-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+      <div className="flex items-center gap-1 md:gap-2 ml-4 w-full overflow-x-auto pr-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         <button 
           onClick={() => setActiveTab("packages")}
           className={`${activeTab === "packages" ? "bg-white text-brand-blue font-extrabold shadow-sm" : "bg-slate-100/80 hover:bg-slate-200/80 border border-slate-200 border-b-0 text-slate-500 font-bold"} px-6 py-3 rounded-t-xl text-xs md:text-sm tracking-wide transition-all whitespace-nowrap shrink-0`}
