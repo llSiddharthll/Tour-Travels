@@ -65,83 +65,92 @@ export default async function BlogDetailPage({ params }: Props) {
 
       <ReadingProgress />
 
-      {/* Magazine cover hero */}
-      <section className="relative h-[78vh] min-h-[600px] max-h-[820px] overflow-hidden bg-slate-900">
-        {blog.coverImage && (
-          <Image
-            src={blog.coverImage}
-            alt={blog.title}
-            fill
-            unoptimized
-            priority
-            sizes="100vw"
-            className="object-cover scale-105 motion-safe:animate-[blogkenburns_25s_ease-in-out_infinite_alternate]"
-          />
-        )}
-        {/* Tints */}
-        <div className="absolute inset-0 bg-gradient-to-b from-slate-950/65 via-slate-950/35 to-slate-950/95" />
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/55 via-transparent to-slate-950/20" />
+      {/* Hero — clean editorial intro on brand-blue with floating cover */}
+      <section className="relative bg-brand-blue overflow-hidden">
+        {/* Decorative orbs */}
+        <div className="pointer-events-none absolute -left-32 top-20 -z-10 h-[28rem] w-[28rem] rounded-full bg-brand-orange/15 blur-[120px]" />
+        <div className="pointer-events-none absolute -right-32 -top-20 -z-10 h-[24rem] w-[24rem] rounded-full bg-blue-500/15 blur-[120px]" />
+        {/* Subtle dot grid */}
+        <div
+          className="pointer-events-none absolute inset-0 -z-10 opacity-[0.05]"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle at 1px 1px, white 1px, transparent 0)",
+            backgroundSize: "32px 32px",
+          }}
+        />
 
-        {/* Top nav */}
-        <div className="relative z-10 max-w-6xl mx-auto px-4 md:px-8 pt-32 md:pt-36">
+        <div className="relative max-w-4xl mx-auto px-4 md:px-8 pt-40 md:pt-48 pb-12 md:pb-16 text-center text-white">
           <Link
             href="/blog"
-            className="inline-flex items-center gap-2 rounded-full bg-white/10 ring-1 ring-white/20 px-3 py-1.5 backdrop-blur-md text-[11px] font-bold uppercase tracking-[0.2em] text-white hover:bg-white/15 transition-colors"
+            className="inline-flex items-center gap-2 rounded-full bg-white/10 ring-1 ring-white/20 px-3 py-1.5 backdrop-blur-md text-[11px] font-bold uppercase tracking-[0.2em] text-white hover:bg-white/15 transition-colors mb-6"
           >
             <RiArrowLeftLine className="h-3.5 w-3.5" />
             Back to all stories
           </Link>
-        </div>
 
-        {/* Bottom-left content */}
-        <div className="absolute inset-x-0 bottom-0 z-10">
-          <div className="max-w-6xl mx-auto px-4 md:px-8 pb-14 md:pb-20 text-white">
-            <div className="max-w-3xl">
-              <div className="flex flex-wrap items-center gap-2 mb-5">
-                <span className="inline-flex items-center gap-2 rounded-full bg-brand-orange/25 ring-1 ring-brand-orange/40 px-3 py-1">
-                  <RiBookOpenLine className="h-3 w-3 text-brand-orange" />
-                  <span className="text-[10px] font-bold uppercase tracking-[0.22em] text-brand-orange">
-                    {blog.category || "Travel Story"}
-                  </span>
-                </span>
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 ring-1 ring-white/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-white/85 backdrop-blur">
-                  <RiTimeLine className="h-3 w-3 text-brand-orange" />
-                  {readMinutes} min read
-                </span>
-              </div>
+          <div className="flex flex-wrap items-center justify-center gap-2 mb-6">
+            <span className="inline-flex items-center gap-2 rounded-full bg-brand-orange/20 ring-1 ring-brand-orange/40 px-3 py-1">
+              <RiBookOpenLine className="h-3 w-3 text-brand-orange" />
+              <span className="text-[10px] font-bold uppercase tracking-[0.22em] text-brand-orange">
+                {blog.category || "Travel Story"}
+              </span>
+            </span>
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 ring-1 ring-white/15 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-white/85 backdrop-blur">
+              <RiTimeLine className="h-3 w-3 text-brand-orange" />
+              {readMinutes} min read
+            </span>
+          </div>
 
-              <h1 className="font-outfit text-4xl md:text-6xl lg:text-7xl font-extrabold leading-[1.04] tracking-tight mb-6 drop-shadow-2xl">
-                {blog.title}
-              </h1>
+          <h1 className="font-outfit text-3xl md:text-5xl lg:text-6xl font-extrabold leading-[1.05] tracking-tight mb-6 drop-shadow-2xl">
+            {blog.title}
+          </h1>
 
-              {blog.excerpt && (
-                <p className="text-base md:text-xl text-white/85 leading-relaxed mb-7 max-w-2xl">
-                  {blog.excerpt}
-                </p>
-              )}
+          {blog.excerpt && (
+            <p className="text-base md:text-xl text-white/85 max-w-2xl mx-auto leading-relaxed mb-8">
+              {blog.excerpt}
+            </p>
+          )}
 
-              <div className="flex items-center gap-4">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand-orange to-amber-500 text-white font-bold text-lg shadow-lg ring-2 ring-white/15">
-                  {blog.author?.[0]?.toUpperCase() ?? "?"}
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-white">
-                    {blog.author}
-                  </p>
-                  <p className="text-[11px] text-white/65 inline-flex items-center gap-1.5">
-                    <RiCalendarLine className="h-3 w-3" />
-                    {fmt(blog.publishedAt)}
-                  </p>
-                </div>
-              </div>
+          <div className="flex items-center justify-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand-orange to-amber-500 text-white font-bold shadow-lg ring-2 ring-white/15">
+              {blog.author?.[0]?.toUpperCase() ?? "?"}
+            </div>
+            <div className="text-left">
+              <p className="text-sm font-bold text-white">{blog.author}</p>
+              <p className="text-[11px] text-white/65 inline-flex items-center gap-1.5">
+                <RiCalendarLine className="h-3 w-3" />
+                {fmt(blog.publishedAt)}
+              </p>
             </div>
           </div>
         </div>
+
+        {/* Floating cover image — bridges hero and article */}
+        {blog.coverImage && (
+          <div className="relative px-4 md:px-8">
+            <div className="mx-auto max-w-5xl aspect-[16/9] overflow-hidden rounded-3xl shadow-2xl ring-1 ring-white/20 -mb-20 md:-mb-28 bg-slate-200">
+              <Image
+                src={blog.coverImage}
+                alt={blog.title}
+                width={1600}
+                height={900}
+                unoptimized
+                priority
+                sizes="(max-width: 1024px) 100vw, 1024px"
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Spacer so the floating image overlaps cleanly into the white below */}
+        <div className="h-20 md:h-28 bg-transparent" />
       </section>
 
       {/* Article + sticky sidebar */}
-      <section className="max-w-6xl mx-auto px-4 md:px-8 py-14 md:py-20 w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_220px] gap-10 lg:gap-14">
+      <section className="max-w-6xl mx-auto px-4 md:px-8 pt-12 md:pt-16 pb-16 md:pb-20 w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-10 lg:gap-14">
           {/* Article body */}
           <article>
             <div
@@ -181,7 +190,7 @@ export default async function BlogDetailPage({ params }: Props) {
               </div>
             ) : null}
 
-            {/* Share row (mobile) */}
+            {/* Mobile share row */}
             <div className="mt-10 lg:hidden">
               <div className="flex items-center justify-between gap-4 rounded-2xl bg-slate-50 ring-1 ring-slate-100 p-4">
                 <span className="text-[11px] font-bold uppercase tracking-widest text-slate-500">
@@ -211,29 +220,41 @@ export default async function BlogDetailPage({ params }: Props) {
             </div>
           </article>
 
-          {/* Sticky sidebar */}
+          {/* Sticky sidebar — one cohesive card */}
           <aside className="hidden lg:block">
-            <div className="sticky top-28 space-y-6">
-              {/* Author mini-card */}
-              <div className="rounded-2xl bg-white ring-1 ring-slate-200 shadow-sm p-5 text-center">
-                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-brand-orange to-amber-500 text-white font-bold text-xl shadow-md ring-2 ring-white">
-                  {blog.author?.[0]?.toUpperCase() ?? "?"}
+            <div className="sticky top-28 overflow-hidden rounded-3xl bg-white ring-1 ring-slate-200 shadow-[0_10px_40px_-15px_rgba(15,23,42,0.18)]">
+              {/* Author header */}
+              <div className="relative p-6 bg-gradient-to-br from-slate-50 to-amber-50/40">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand-orange to-amber-500 text-white font-bold text-lg shadow-md ring-2 ring-white">
+                    {blog.author?.[0]?.toUpperCase() ?? "?"}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                      Written by
+                    </p>
+                    <p className="font-outfit text-sm font-bold text-brand-blue truncate">
+                      {blog.author}
+                    </p>
+                  </div>
                 </div>
-                <p className="mt-3 text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                  Author
-                </p>
-                <p className="mt-0.5 font-outfit text-sm font-bold text-brand-blue">
-                  {blog.author}
-                </p>
-                <p className="mt-1 text-[11px] text-slate-500">
-                  {readMinutes} min read · {fmt(blog.publishedAt)}
-                </p>
+                <div className="mt-4 flex items-center gap-3 text-[11px] text-slate-500">
+                  <span className="inline-flex items-center gap-1">
+                    <RiCalendarLine className="h-3 w-3" />
+                    {fmt(blog.publishedAt)}
+                  </span>
+                  <span className="h-1 w-1 rounded-full bg-slate-300" />
+                  <span className="inline-flex items-center gap-1">
+                    <RiTimeLine className="h-3 w-3" />
+                    {readMinutes} min
+                  </span>
+                </div>
               </div>
 
               {/* Share */}
-              <div className="rounded-2xl bg-white ring-1 ring-slate-200 shadow-sm p-5">
-                <p className="mb-3 text-center text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                  Share
+              <div className="px-6 py-5 border-t border-slate-100">
+                <p className="mb-3 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                  Share this story
                 </p>
                 <ShareButtons
                   title={blog.title}
@@ -241,9 +262,9 @@ export default async function BlogDetailPage({ params }: Props) {
                 />
               </div>
 
-              {/* Inline CTA */}
-              <div className="rounded-2xl bg-brand-blue text-white p-5 shadow-lg overflow-hidden relative">
-                <div className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-brand-orange/30 blur-2xl" />
+              {/* CTA */}
+              <div className="relative overflow-hidden bg-brand-blue text-white p-6">
+                <div className="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full bg-brand-orange/30 blur-2xl" />
                 <p className="text-[10px] font-bold uppercase tracking-widest text-brand-orange mb-2">
                   Plan your trip
                 </p>
@@ -337,14 +358,6 @@ export default async function BlogDetailPage({ params }: Props) {
           </div>
         </section>
       )}
-
-      {/* Subtle Ken-burns keyframes for the cover */}
-      <style>{`
-        @keyframes blogkenburns {
-          0% { transform: scale(1.05) translate(0, 0); }
-          100% { transform: scale(1.12) translate(-1.5%, -1%); }
-        }
-      `}</style>
     </main>
   );
 }
